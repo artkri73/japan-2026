@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Япония 2026 — Маршрут</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding-bottom:60px}
+.hero{padding:24px 16px 16px;border-bottom:1px solid #1e1e3a}
+.hero h1{font-size:22px;font-weight:600;color:#ff6b9d}
+.hero-sub{font-size:13px;color:#888;margin-top:4px}
+.hero-meta{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid #2a2a4a;color:#9999cc;background:#1a1a2e}
+.updated{font-size:11px;color:#444;margin-top:6px}
+.cities{padding:12px}
+.city-block{margin-bottom:20px}
+.city-header{display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:12px 12px 0 0}
+.city-osaka{background:#2a1520;border:1px solid #5a2535}
+.city-kyoto{background:#1e1a30;border:1px solid #4a3a70}
+.city-hiroshima{background:#152520;border:1px solid #2a5040}
+.city-tokyo{background:#151f30;border:1px solid #254565}
+.city-icon{width:40px;height:40px;border-radius:50%;background:#ffffff15;display:flex;align-items:center;justify-content:center;font-size:20px}
+.city-info .city-name{font-size:16px;font-weight:600}
+.city-osaka .city-name{color:#ff7a8a}
+.city-kyoto .city-name{color:#b088ff}
+.city-hiroshima .city-name{color:#44cc88}
+.city-tokyo .city-name{color:#5599ff}
+.city-dates{font-size:12px;color:#666;margin-top:2px}
+.city-body{border:1px solid #1e1e3a;border-top:none;border-radius:0 0 12px 12px;padding:12px;background:#0d0d1a}
+.days-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-bottom:12px}
+.day-card{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:10px;padding:12px;position:relative}
+.day-num{font-size:11px;color:#555;letter-spacing:.5px}
+.day-title{font-size:13px;font-weight:600;color:#ddddf0;margin:4px 0 8px}
+.stops-list{display:flex;flex-direction:column;gap:8px}
+.stop-item{display:flex;gap:8px;align-items:flex-start;border-left:2px solid #2a2a4a;padding-left:8px}
+.stop-time{font-size:11px;font-weight:700;color:#5599ff;min-width:36px;padding-top:1px;white-space:nowrap}
+.stop-content{flex:1}
+.stop-name{font-size:12px;font-weight:600;color:#ddddf0}
+.stop-transport{font-size:11px;color:#44cc88;margin-top:2px;line-height:1.4}
+.stop-desc{font-size:11px;color:#8888aa;margin-top:2px;line-height:1.4}
+.empty-day{font-size:12px;color:#444;font-style:italic;padding:8px 4px;text-align:center;border:1px dashed #2a2a4a;border-radius:8px}
+.city-tips{background:#111128;border-radius:8px;padding:10px 12px;border-left:3px solid #5599ff}
+.tips-title{font-size:12px;font-weight:600;color:#5599ff;margin-bottom:6px}
+.tips-list{list-style:none;display:flex;flex-direction:column;gap:4px}
+.tips-list li{font-size:12px;color:#8888aa;padding-left:14px;position:relative;line-height:1.5}
+.tips-list li::before{content:"—";position:absolute;left:0;color:#444}
+.general-tips{margin:0 12px 20px;background:#111128;border-radius:12px;padding:16px;border:1px solid #1e1e3a}
+.general-title{font-size:14px;font-weight:600;color:#ccccee;margin-bottom:12px}
+.tips-cols{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tip-item{display:flex;gap:8px;align-items:flex-start;padding:10px;background:#1a1a2e;border-radius:8px;border:1px solid #2a2a4a}
+.tip-icon{font-size:18px;min-width:22px}
+.tip-text{font-size:12px;color:#8888aa;line-height:1.5}
+.tip-text strong{font-weight:600;color:#ccccee;display:block;margin-bottom:2px}
+/* Edit button */
+.edit-btn{position:absolute;top:8px;right:8px;background:transparent;border:1px solid #2a2a4a;color:#555;font-size:10px;padding:3px 7px;border-radius:5px;cursor:pointer}
+.edit-btn:hover{border-color:#5599ff;color:#5599ff}
+/* Settings modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:16px;padding:24px;width:340px;max-width:92vw}
+.modal h2{font-size:16px;font-weight:600;margin-bottom:4px;color:#ddddf0}
+.modal .sub{font-size:12px;color:#666;margin-bottom:16px}
+.field{margin-bottom:12px}
+.field label{font-size:12px;color:#888;display:block;margin-bottom:4px}
+.field input{width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:8px 10px;color:#ddddf0;font-size:13px}
+.field input:focus{outline:none;border-color:#5599ff}
+.modal-btns{display:flex;gap:8px;margin-top:16px}
+.btn-save{flex:1;background:#5599ff;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{padding:10px 16px;background:transparent;border:1px solid #2a2a4a;color:#888;border-radius:8px;font-size:13px;cursor:pointer}
+.status-bar{display:none;position:fixed;bottom:12px;left:50%;transform:translateX(-50%);background:#1a1a2e;border:1px solid #2a2a4a;border-radius:20px;padding:8px 18px;font-size:13px;color:#ddddf0;z-index:200}
+.status-bar.show{display:block}
+/* Edit command modal */
+.cmd-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.cmd-modal.open{display:flex}
+.cmd-box{background:#1a1a2e;border:1px solid #2a2a4a;border-radius:16px;padding:20px;width:360px;max-width:92vw}
+.cmd-box h3{font-size:14px;font-weight:600;margin-bottom:12px;color:#ddddf0}
+.cmd-box textarea{width:100%;background:#0f0f1a;border:1px solid #2a2a4a;border-radius:8px;padding:8px 10px;color:#ddddf0;font-size:13px;resize:vertical;min-height:80px}
+.cmd-box textarea:focus{outline:none;border-color:#5599ff}
+.cmd-examples{font-size:11px;color:#555;margin:8px 0 12px;line-height:1.8}
+.cmd-examples span{color:#5599ff}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>🇯🇵 Япония 2026</h1>
+  <div class="hero-sub">26 сентября — 8 октября · 4 города · 13 дней</div>
+  <div class="hero-meta">
+    <span class="badge">Осака 2 ночи</span>
+    <span class="badge">Киото + Нара 3 ночи</span>
+    <span class="badge">Хиросима + Миядзима 2 ночи</span>
+    <span class="badge">Токио 5 ночей</span>
+  </div>
+  <div class="updated" id="updated-line">Обновлено: —</div>
+</div>
+
+<div class="cities">
+
+<!-- OSAKA -->
+<div class="city-block">
+  <div class="city-header city-osaka">
+    <div class="city-icon">🏙️</div>
+    <div class="city-info">
+      <div class="city-name">Осака</div>
+      <div class="city-dates">26–27 сен · 2 ночи</div>
+    </div>
+  </div>
+  <div class="city-body">
+    <div class="days-grid">
+
+    <div class="day-card" data-date="2026-09-26">
+      <button class="edit-btn" onclick="openEdit('2026-09-26',1)">✎</button>
+      <div class="day-num">День 1 · 26 сен</div>
+      <div class="day-title">Прибытие в Осаку</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">19:30</div><div class="stop-content"><div class="stop-name">Заселение Namba / Minatomachi</div><div class="stop-transport">🚆 Nankai Airport Express KIX→Namba, 45 мин</div><div class="stop-desc">Базовый район в центре развлечений Осаки</div></div></div><div class="stop-item"><div class="stop-time">20:30</div><div class="stop-content"><div class="stop-name">Dotonbori — прогулка</div><div class="stop-transport">🚶 15 мин пешком от отеля</div><div class="stop-desc">Неоновые огни, канал, Glico Man, такояки</div></div></div></div>
+    </div>
+
+    <div class="day-card" data-date="2026-09-27">
+      <button class="edit-btn" onclick="openEdit('2026-09-27',2)">✎</button>
+      <div class="day-num">День 2 · 27 сен</div>
+      <div class="day-title">Храмы, еда и релакс</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">08:00</div><div class="stop-content"><div class="stop-name">Храм Namba Yasaka</div><div class="stop-transport">🚶 15 мин пешком от отеля</div><div class="stop-desc">12-метровая голова льва поглощает неудачи</div></div></div><div class="stop-item"><div class="stop-time">09:30</div><div class="stop-content"><div class="stop-name">Sumiyoshi Taisha</div><div class="stop-transport">🚆 Метро Midosuji + Трамвай Hankai</div><div class="stop-desc">Древнейшее святилище III века, арочный мост Сори-хаси</div></div></div><div class="stop-item"><div class="stop-time">12:00</div><div class="stop-content"><div class="stop-name">Рынок Kuromon</div><div class="stop-transport">🚆 Метро Sakaisuji до Nippombashi</div><div class="stop-desc">Кухня Осаки: морепродукты, суши, деликатесы</div></div></div><div class="stop-item"><div class="stop-time">14:30</div><div class="stop-content"><div class="stop-name">Башня Tsutenkaku — Shinsekai</div><div class="stop-transport">🚆 Метро Sakaisuji Nippombashi→Ebisucho</div><div class="stop-desc">Ретро-квартал, башня, Fast Track для входа</div></div></div><div class="stop-item"><div class="stop-time">18:00</div><div class="stop-content"><div class="stop-name">Spa World — онсэн</div><div class="stop-transport">🚶 Пешком от башни Цутэнкаку, 5 мин</div><div class="stop-desc">Термальные источники со всего мира</div></div></div><div class="stop-item"><div class="stop-time">20:00</div><div class="stop-content"><div class="stop-name">Ужин Yakiniku M</div><div class="stop-transport">🚆 Метро до Nippombashi</div><div class="stop-desc">Премиальная говядина Вагю на личном гриле</div></div></div></div>
+    </div>
+
+    </div>
+    <div class="city-tips"><div class="tips-title">Советы по Осака</div><ul class="tips-list"><li>IC-карта ICOCA для всего местного транспорта</li><li>Такояки и окономияки — обязательно на улице</li><li>В Spa World лучше идти вечером</li></ul></div>
+  </div>
+</div>
+
+<!-- KYOTO -->
+<div class="city-block">
+  <div class="city-header city-kyoto">
+    <div class="city-icon">⛩️</div>
+    <div class="city-info">
+      <div class="city-name">Киото + Нара</div>
+      <div class="city-dates">28–30 сен · 3 ночи</div>
+    </div>
+  </div>
+  <div class="city-body">
+    <div class="days-grid">
+
+    <div class="day-card" data-date="2026-09-28">
+      <button class="edit-btn" onclick="openEdit('2026-09-28',3)">✎</button>
+      <div class="day-num">День 3 · 28 сен</div>
+      <div class="day-title">Замок Осаки и переезд в Киото</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">09:00</div><div class="stop-content"><div class="stop-name">Osaka Castle</div><div class="stop-transport">🚆 Метро Midosuji + линия Chuo→Morinomiya</div><div class="stop-desc">Величественная цитадель, отправка багажа Takkyubin</div></div></div><div class="stop-item"><div class="stop-time">13:00</div><div class="stop-content"><div class="stop-name">Переезд в Киото</div><div class="stop-transport">🚆 JR Special Rapid Osaka→Kyoto, 30 мин</div><div class="stop-desc">Отель Granvia прямо в здании вокзала Киото</div></div></div><div class="stop-item"><div class="stop-time">14:30</div><div class="stop-content"><div class="stop-name">Skyway Deck — крыша вокзала</div><div class="stop-transport">🚶 Внутри здания вокзала Киото, бесплатно</div><div class="stop-desc">Панорамная крыша с видом на город</div></div></div></div>
+    </div>
+
+    <div class="day-card" data-date="2026-09-29">
+      <button class="edit-btn" onclick="openEdit('2026-09-29',4)">✎</button>
+      <div class="day-num">День 4 · 29 сен</div>
+      <div class="day-title">Восточный Киото</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">09:00</div><div class="stop-content"><div class="stop-name">Ginkaku-ji — Серебряный павильон</div><div class="stop-transport">🚗 Такси от вокзала Киото, ~20 мин</div></div></div><div class="stop-item"><div class="stop-time">10:30</div><div class="stop-content"><div class="stop-name">Тропа Философа</div><div class="stop-transport">🚶 5 мин пешком от Гинкаку-дзи</div></div></div><div class="stop-item"><div class="stop-time">14:00</div><div class="stop-content"><div class="stop-name">Yasaka Shrine + Maruyama Park</div><div class="stop-transport">🚶 Пешком, 15 мин</div></div></div><div class="stop-item"><div class="stop-time">15:00</div><div class="stop-content"><div class="stop-name">Kiyomizu-dera</div><div class="stop-transport">🚶 Вверх по улочкам Нинэнзака</div></div></div><div class="stop-item"><div class="stop-time">17:00</div><div class="stop-content"><div class="stop-name">Район Gion</div><div class="stop-transport">🚶 Пешком вниз от Киёмидзу-дэра</div><div class="stop-desc">Исторический квартал гейш, улица Ханамикодзи</div></div></div><div class="stop-item"><div class="stop-time">19:00</div><div class="stop-content"><div class="stop-name">Ужин — Pontocho</div><div class="stop-transport">🚶 Пешком через мост Сидзё</div><div class="stop-desc">Узкий переулок с ресторанами вдоль реки Камо</div></div></div></div>
+    </div>
+
+    <div class="day-card" data-date="2026-09-30">
+      <button class="edit-btn" onclick="openEdit('2026-09-30',5)">✎</button>
+      <div class="day-num">День 5 · 30 сен</div>
+      <div class="day-title">Золотой павильон и Фусими Инари</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">08:00</div><div class="stop-content"><div class="stop-name">Arashiyama — бамбуковая роща</div><div class="stop-transport">🚆 JR San-in Line Kyoto→Saga-Arashiyama</div><div class="stop-desc">Бамбуковая роща, сад Tenryu-ji ЮНЕСКО</div></div></div><div class="stop-item"><div class="stop-time">12:30</div><div class="stop-content"><div class="stop-name">Kinkaku-ji — Золотой павильон</div><div class="stop-transport">🚗 Такси из Арасиямы, ~15 мин</div></div></div><div class="stop-item"><div class="stop-time">16:30</div><div class="stop-content"><div class="stop-name">Fushimi Inari — тории</div><div class="stop-transport">🚆 JR Nara Line Kyoto→Inari</div><div class="stop-desc">Тысячи красных ворот-тории на склоне горы</div></div></div></div>
+    </div>
+
+    </div>
+    <div class="city-tips"><div class="tips-title">Советы по Киото</div><ul class="tips-list"><li>Hotel Granvia — прямо в здании вокзала, удобно</li><li>Арасияму посещать до 8:00 — минимум туристов</li><li>Автобус Kyoto City Bus №100 охватывает все точки</li></ul></div>
+  </div>
+</div>
+
+<!-- HIROSHIMA -->
+<div class="city-block">
+  <div class="city-header city-hiroshima">
+    <div class="city-icon">☮️</div>
+    <div class="city-info">
+      <div class="city-name">Хиросима + Миядзима</div>
+      <div class="city-dates">1–2 окт · 2 ночи</div>
+    </div>
+  </div>
+  <div class="city-body">
+    <div class="days-grid">
+
+    <div class="day-card" data-date="2026-10-01">
+      <button class="edit-btn" onclick="openEdit('2026-10-01',6)">✎</button>
+      <div class="day-num">День 6 · 1 окт</div>
+      <div class="day-title">Хиросима: память и панорамы</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">13:40</div><div class="stop-content"><div class="stop-name">Прибытие — Hotel Granvia</div><div class="stop-transport">🚆 Синкансэн Kyoto→Hiroshima, 1ч 40мин</div></div></div><div class="stop-item"><div class="stop-time">15:30</div><div class="stop-content"><div class="stop-name">Парк Мира + Купол + Orizuru Tower</div><div class="stop-transport">🚃 Трамвай Hiroden №2 до Genbaku Dome-mae</div><div class="stop-desc">Мемориал мира, панорама города с башни Orizuru</div></div></div><div class="stop-item"><div class="stop-time">18:30</div><div class="stop-content"><div class="stop-name">Ужин — Okonomimura</div><div class="stop-transport">🚃 Трамвай Hiroden до Hatchobori</div><div class="stop-desc">Фирменная хиросимская окономияки</div></div></div></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-02">
+      <button class="edit-btn" onclick="openEdit('2026-10-02',7)">✎</button>
+      <div class="day-num">День 7 · 2 окт</div>
+      <div class="day-title">Миядзима и путь в Токио</div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">08:00</div><div class="stop-content"><div class="stop-name">Остров Миядзима</div><div class="stop-transport">🚆 JR + паром JR Ferry 10 мин</div><div class="stop-desc">Ворота Тории в воде, святилище Ицукусима, олени</div></div></div><div class="stop-item"><div class="stop-time">10:00</div><div class="stop-content"><div class="stop-name">Ropeway на Mt. Misen</div><div class="stop-transport">🚠 Канатная дорога от святилища</div><div class="stop-desc">Виды на Внутреннее море Сэто</div></div></div><div class="stop-item"><div class="stop-time">14:30</div><div class="stop-content"><div class="stop-name">Отъезд в Токио</div><div class="stop-transport">🚆 Синкансэн Hiroshima→Tokyo, 4 часа</div></div></div></div>
+    </div>
+
+    </div>
+    <div class="city-tips"><div class="tips-title">Советы по Хиросима</div><ul class="tips-list"><li>Трамвай Hiroden — основной транспорт, ¥190 за поездку</li><li>На Миядзиму ехать утром — ворота Тории в воде</li><li>Паром JR Ferry входит в JR Pass</li></ul></div>
+  </div>
+</div>
+
+<!-- TOKYO -->
+<div class="city-block">
+  <div class="city-header city-tokyo">
+    <div class="city-icon">🗼</div>
+    <div class="city-info">
+      <div class="city-name">Токио</div>
+      <div class="city-dates">3–8 окт · 5 ночей</div>
+    </div>
+  </div>
+  <div class="city-body">
+    <div class="days-grid">
+
+    <div class="day-card" data-date="2026-10-03">
+      <button class="edit-btn" onclick="openEdit('2026-10-03',8)">✎</button>
+      <div class="day-num">День 8 · 3 окт</div>
+      <div class="day-title">Токио — свободный день</div>
+      <div class="stops-list"></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-04">
+      <button class="edit-btn" onclick="openEdit('2026-10-04',9)">✎</button>
+      <div class="day-num">День 9 · 4 окт</div>
+      <div class="day-title">Токио — свободный день</div>
+      <div class="stops-list"></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-05">
+      <button class="edit-btn" onclick="openEdit('2026-10-05',10)">✎</button>
+      <div class="day-num">День 10 · 5 окт</div>
+      <div class="day-title">Токио — свободный день</div>
+      <div class="stops-list"></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-06">
+      <button class="edit-btn" onclick="openEdit('2026-10-06',11)">✎</button>
+      <div class="day-num">День 11 · 6 окт</div>
+      <div class="day-title">Токио — свободный день</div>
+      <div class="stops-list"></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-07">
+      <button class="edit-btn" onclick="openEdit('2026-10-07',12)">✎</button>
+      <div class="day-num">День 12 · 7 окт</div>
+      <div class="day-title">Токио — свободный день</div>
+      <div class="stops-list"></div>
+    </div>
+
+    <div class="day-card" data-date="2026-10-08">
+      <button class="edit-btn" onclick="openEdit('2026-10-08',13)">✎</button>
+      <div class="day-num">День 13 · 8 окт</div>
+      <div class="day-title">Вылет домой</div>
+      <div class="stops-list"></div>
+    </div>
+
+    </div>
+    <div class="city-tips"><div class="tips-title">Советы по Токио</div><ul class="tips-list"><li>Suica или Pasmo IC-карта — для всего метро</li><li>Ginza Line: Asakusa→Ueno→Ginza→Shibuya</li><li>Вылет 8 октября — выезжать из центра не позднее 18:00</li></ul></div>
+  </div>
+</div>
+
+</div><!-- /cities -->
+
+<div class="general-tips">
+  <div class="general-title">Общие советы</div>
+  <div class="tips-cols">
+    <div class="tip-item"><span class="tip-icon">💴</span><div class="tip-text"><strong>Наличные</strong>Снимайте иены в банкоматах 7-Eleven или Japan Post. Налог при выезде 3000 йен.</div></div>
+    <div class="tip-item"><span class="tip-icon">📱</span><div class="tip-text"><strong>Приложения</strong>GO — такси. Tabelog — рестораны. Google Maps — транспорт. Japan Web Visit — въезд.</div></div>
+    <div class="tip-item"><span class="tip-icon">🚄</span><div class="tip-text"><strong>Транспорт</strong>ICOCA (Кансай) или Suica (Токио). Синкансэн Хиросима→Токио ~¥19,000.</div></div>
+    <div class="tip-item"><span class="tip-icon">🧳</span><div class="tip-text"><strong>Советы</strong>Удобная обувь обязательна — 15-20 км в день. Takkyubin — доставка багажа между городами.</div></div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h2>⚙️ Настройка Telegram</h2>
+    <div class="sub">Вводится один раз — сохраняется в браузере</div>
+    <div id="settings-error" style="display:none;background:#3a1515;border:1px solid #cc3333;border-radius:8px;padding:8px 12px;font-size:12px;color:#ff8888;margin-bottom:12px"></div>
+    <div class="field"><label>GitHub Token</label><input type="password" id="gh-token" placeholder="ghp_..."></div>
+    <div class="field"><label>Telegram Chat ID (группа)</label><input type="text" id="tg-chatid" placeholder="-5477207100"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeSettings()">Отмена</button>
+      <button class="btn-save" onclick="saveSettings()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Command Modal -->
+<div class="cmd-modal" id="cmd-modal">
+  <div class="cmd-box">
+    <h3 id="cmd-title">✏️ Редактировать день</h3>
+    <div class="cmd-examples">
+      Примеры команд:<br>
+      <span>יום 12 הוסף שינקוקו 19:00</span><br>
+      <span>день 12 добавь Акихабара 15:00</span><br>
+      <span>day 12 add Shibuya 18:00</span><br>
+      <span>יום 12 נקה הכל</span> / <span>день 12 очисти</span>
+    </div>
+    <textarea id="cmd-input" placeholder="Введите команду..."></textarea>
+    <div class="modal-btns" style="margin-top:12px">
+      <button class="btn-cancel" onclick="closeCmd()">Отмена</button>
+      <button class="btn-save" onclick="sendCmd()">Отправить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Status bar -->
+<div class="status-bar" id="status-bar"></div>
+
+<!-- Settings button -->
+<div style="position:fixed;bottom:16px;right:16px">
+  <button onclick="openSettings()" style="background:#1a1a2e;border:1px solid #2a2a4a;color:#888;padding:10px 14px;border-radius:20px;font-size:12px;cursor:pointer">⚙️ Настройки</button>
+</div>
+
+<script>
+const REPO = 'artkri73/japan-2026';
+const GH_API = 'https://api.github.com/repos/' + REPO + '/contents/';
+let currentDate = null, currentDay = null;
+
+function getSettings() {
+  return {
+    ghToken: localStorage.getItem('gh_token') || '',
+    chatId: localStorage.getItem('tg_chat_id') || ''
+  };
+}
+
+function openSettings() {
+  const s = getSettings();
+  document.getElementById('gh-token').value = s.ghToken;
+  document.getElementById('tg-chatid').value = s.chatId;
+  document.getElementById('settings-error').style.display = 'none';
+  document.getElementById('settings-modal').classList.add('open');
+}
+
+function closeSettings() {
+  document.getElementById('settings-modal').classList.remove('open');
+}
+
+function saveSettings() {
+  const gh = document.getElementById('gh-token').value.trim();
+  const cid = document.getElementById('tg-chatid').value.trim();
+  if (!gh) { showSettingsError('Введите GitHub Token'); return; }
+  localStorage.setItem('gh_token', gh);
+  if (cid) localStorage.setItem('tg_chat_id', cid);
+  closeSettings();
+  showStatus('✅ Настройки сохранены');
+}
+
+function showSettingsError(msg) {
+  const el = document.getElementById('settings-error');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function openEdit(date, day) {
+  const s = getSettings();
+  if (!s.ghToken) { openSettings(); return; }
+  currentDate = date; currentDay = day;
+  document.getElementById('cmd-title').textContent = '✏️ День ' + day + ' · ' + date;
+  document.getElementById('cmd-input').value = '';
+  document.getElementById('cmd-modal').classList.add('open');
+}
+
+function closeCmd() {
+  document.getElementById('cmd-modal').classList.remove('open');
+}
+
+async function sendCmd() {
+  const msg = document.getElementById('cmd-input').value.trim();
+  if (!msg) return;
+  const s = getSettings();
+  closeCmd();
+  showStatus('⏳ Отправка...');
+  try {
+    // Get current SHA
+    const r = await fetch(GH_API + 'pending_edit.json', {
+      headers: { Authorization: 'token ' + s.ghToken, Accept: 'application/vnd.github.v3+json' }
+    });
+    const d = await r.json();
+    const sha = d.sha;
+    const payload = JSON.stringify({ msg: msg, ts: Date.now(), done: false });
+    // Write pending_edit.json
+    await fetch(GH_API + 'pending_edit.json', {
+      method: 'PUT',
+      headers: { Authorization: 'token ' + s.ghToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'edit: ' + msg.slice(0,40), content: btoa(unescape(encodeURIComponent(payload))), sha: sha })
+    });
+    showStatus('⏳ Бот обрабатывает...');
+    pollUntilDone(s.ghToken, 0);
+  } catch(e) {
+    showStatus('❌ Ошибка: ' + e.message);
+  }
+}
+
+async function pollUntilDone(token, attempts) {
+  if (attempts > 12) { showStatus('⏱ Превышено время ожидания'); return; }
+  await new Promise(r => setTimeout(r, 5000));
+  try {
+    const r = await fetch(GH_API + 'pending_edit.json?t=' + Date.now(), {
+      headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
+    });
+    const d = await r.json();
+    const pe = JSON.parse(atob(d.content));
+    if (pe.done) {
+      showStatus('✅ Обновлено! Перезагрузка...');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      pollUntilDone(token, attempts + 1);
+    }
+  } catch(e) {
+    pollUntilDone(token, attempts + 1);
+  }
+}
+
+function showStatus(msg) {
+  const bar = document.getElementById('status-bar');
+  bar.textContent = msg; bar.classList.add('show');
+  if (!msg.includes('⏳') && !msg.includes('⏱')) {
+    setTimeout(() => bar.classList.remove('show'), 3000);
+  }
+}
+
+// Update timestamp
+const PAGE_TIMESTAMP = "2026-06-28T00:00:00.000000";
+document.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+
+// Show settings on first load
+window.addEventListener('load', () => {
+  if (!localStorage.getItem('gh_token')) setTimeout(openSettings, 800);
+});
+</script>
+</body>
+</html>
