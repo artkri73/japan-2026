@@ -208,38 +208,6 @@ main, article, section { background: transparent !important; }
 }
 .stop-name { color: #111827 !important; font-size: 14px !important; }
 
-/* Day tab bar */
-#day-tab-bar {
-  display: flex !important;
-  gap: 6px !important;
-  padding: 0 0 14px !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-}
-#day-tab-bar::-webkit-scrollbar { display: none; }
-.day-tab {
-  flex-shrink: 0 !important;
-  background: none !important;
-  border: 1.5px solid rgba(37,99,235,.35) !important;
-  color: #2563eb !important;
-  border-radius: 20px !important;
-  padding: 5px 14px !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  cursor: pointer;
-  transition: all .15s;
-  white-space: nowrap;
-}
-.day-tab.active {
-  background: #2563eb !important;
-  color: #fff !important;
-  border-color: #2563eb !important;
-}
-.day-tab:hover:not(.active) {
-  background: rgba(37,99,235,.07) !important;
-}
-
 /* Refresh button */
 .refresh-btn {
   display: inline-flex !important;
@@ -361,7 +329,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 15:06</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 15:08</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -673,7 +641,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T15:06:10";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T15:08:02";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -986,8 +954,7 @@ function enhanceUI(){
     card.appendChild(panel);
   });
 
-  /* Build tabs after enhancing all cards */
-  buildTabs();
+  /* tabs removed */
 }
 
 if(document.readyState==='loading')
