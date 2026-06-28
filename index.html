@@ -138,6 +138,32 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 .refresh-btn:hover{border-color:#5599ff;color:#5599ff}
 .stop-name a{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;text-decoration-color:#3a3a6a}
 .stop-name a:hover{text-decoration-color:#5599ff;color:#99bbff}
+
+/* ── Japan-2026 UI Upgrade ── */
+.refresh-btn{background:none;border:1px solid #2a2a4a;color:#666;padding:2px 8px;
+  border-radius:12px;font-size:11px;cursor:pointer;margin-left:8px;vertical-align:middle;transition:all .2s}
+.refresh-btn:hover{border-color:#5599ff;color:#5599ff}
+.stop-del-btn{background:none;border:none;color:rgba(180,150,150,.45);cursor:pointer;
+  padding:0 5px 0 0;font-size:15px;line-height:1;vertical-align:middle;transition:color .15s}
+.stop-del-btn:hover{color:#e05555}
+.stop-name a.sn-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;
+  text-underline-offset:3px;text-decoration-color:rgba(100,120,220,.35)}
+.stop-name a.sn-link:hover{color:#7aabf0;text-decoration-color:#7aabf0}
+.struct-edit-panel{border-top:1px solid rgba(100,100,200,.15);margin-top:10px;padding:10px 0 4px}
+.struct-add-form{display:flex;gap:6px;align-items:center;margin-bottom:6px}
+.struct-time-in{width:86px;background:rgba(255,255,255,.05);border:1px solid rgba(100,120,220,.3);
+  border-radius:8px;padding:6px 8px;font-size:13px;color:inherit;color-scheme:dark}
+.struct-place-in{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(100,120,220,.3);
+  border-radius:8px;padding:6px 10px;font-size:13px;color:inherit}
+.struct-place-in::placeholder{color:rgba(160,160,200,.4)}
+.struct-add-btn{background:rgba(60,100,200,.25);border:1px solid rgba(80,130,220,.5);
+  border-radius:8px;padding:6px 13px;font-size:13px;color:#90b8f8;cursor:pointer;white-space:nowrap;transition:background .15s}
+.struct-add-btn:hover{background:rgba(60,100,200,.45)}
+.struct-clear-btn{width:100%;background:none;border:1px solid rgba(200,80,80,.25);
+  border-radius:8px;padding:5px;font-size:12px;color:rgba(210,110,110,.7);cursor:pointer;transition:background .15s}
+.struct-clear-btn:hover{background:rgba(200,60,60,.12);color:#e08888}
+.struct-place-in:focus,.struct-time-in:focus{outline:none;border-color:rgba(100,150,255,.7);
+  box-shadow:0 0 0 2px rgba(80,120,220,.15)}
 </style>
 </head>
 <body>
@@ -150,7 +176,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 12:47</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:04</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -464,7 +490,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:47:53";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:04:03";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -504,32 +530,155 @@ window.addEventListener('load', () => {
 </script>
 
 
-<script>
+<script id="ui-upgrade-v3">
 (function(){
-  // Make every stop-name clickable → Google Maps
-  var stops = document.querySelectorAll('.stop-name');
-  stops.forEach(function(el){
-    if(el.querySelector('a')) return; // already linked
-    var name = el.textContent.trim();
-    if(!name) return;
-    // Find city context by walking up DOM
-    var city = 'Япония';
-    var cb = el.closest('.city-block');
-    if(cb){
-      var cn = cb.querySelector('.city-name');
-      if(cn) city = cn.textContent.trim();
-    }
-    var query = encodeURIComponent(name + ', ' + city);
-    var a = document.createElement('a');
-    a.href = 'https://www.google.com/maps/search/' + query;
-    a.target = '_blank';
-    a.rel = 'noopener noreferrer';
-    a.innerHTML = el.innerHTML;
-    el.innerHTML = '';
-    el.appendChild(a);
+var REPO='artkri73/japan-2026';
+var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
+
+function ghFetch(){
+  var tok=localStorage.getItem('gh_token');
+  if(!tok){showStatus('❌ Нет GitHub token. Войди в ⚙️');return Promise.reject('no token');}
+  return fetch(APIURL+'?t='+Date.now(),
+    {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){return{html:decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))),sha:d.sha};});
+}
+function ghPush(html,sha,msg){
+  var tok=localStorage.getItem('gh_token');
+  var b64=btoa(unescape(encodeURIComponent(html)));
+  return fetch(APIURL,{method:'PUT',
+    headers:{Authorization:'token '+tok,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+    body:JSON.stringify({message:msg,content:b64,sha:sha,branch:'main'})
+  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+function stampHtml(html){
+  var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
+  var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+now+'";');
+  html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
+  return html;
+}
+function _removeStop(html,date,name){
+  var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  var dayIdx=html.indexOf('data-date="'+date+'"');
+  if(dayIdx<0) return html;
+  var nextDay=html.indexOf('data-date="',dayIdx+20);
+  var haystack=nextDay>0?html.slice(dayIdx,nextDay):html.slice(dayIdx);
+  var re=new RegExp('>'+escaped+'(?:</a>)?</div>');
+  var nm=re.exec(haystack);
+  if(!nm) return html;
+  var namePos=dayIdx+nm.index;
+  var before=html.slice(0,namePos);
+  var itemStart=-1,tagName='div';
+  [['<li ','li'],['<li\n','li'],['<div class="stop-item','div'],
+   ['<div class="stop "','div'],['<div class="event"','div']].forEach(function(pair){
+    var idx=before.lastIndexOf(pair[0]);
+    if(idx>itemStart){itemStart=idx;tagName=pair[1];}
   });
+  if(itemStart<0){
+    return html.replace(new RegExp('<div[^>]*class="[^"]*stop-(?:name|time)[^"]*"[^>]*>[^<]*'+escaped+'[^<]*<\\/div>'),'');
+  }
+  var depth=0,itemEnd=-1;
+  var closeRe=new RegExp('<'+tagName+'[\\s>]|</'+tagName+'>','g');
+  closeRe.lastIndex=itemStart;
+  var m;
+  while((m=closeRe.exec(html))!==null){
+    if(m.index<itemStart) continue;
+    if(m[0].startsWith('</')){if(depth===0){itemEnd=m.index+m[0].length;break;}depth--;}
+    else depth++;
+  }
+  if(itemEnd<0) return html;
+  return html.slice(0,itemStart).trimEnd()+'\n'+html.slice(itemEnd).trimStart();
+}
+
+window.addStopToDay=function(date,placeId,timeId){
+  var name=(document.getElementById(placeId)||{}).value;
+  if(name) name=name.trim();
+  var t=(document.getElementById(timeId)||{}).value||'';
+  if(!name){if(document.getElementById(placeId))document.getElementById(placeId).focus();return;}
+  showStatus('Сохраняем...');
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);
+    h=_addStop(h,date,name,t);
+    return ghPush(h,x.sha,'add: '+name+(t?' в '+t:'')+' ('+date+')');
+  }).then(function(){
+    document.getElementById(placeId).value='';
+    showStatus('✅ Добавлено: "'+name+'"'+(t?' в '+t:'')+'. Обновляем через 30 сек...');
+    setTimeout(function(){location.reload();},30000);
+  }).catch(function(e){showStatus('❌ '+e.message);});
+};
+window.removeStopFromDay=function(date,name){
+  if(!confirm('Удалить "'+name+'"?')) return;
+  showStatus('Удаляем...');
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);
+    h=_removeStop(h,date,name);
+    return ghPush(h,x.sha,'remove: '+name+' ('+date+')');
+  }).then(function(){
+    showStatus('✅ Удалено: "'+name+'". Обновляем через 30 сек...');
+    setTimeout(function(){location.reload();},30000);
+  }).catch(function(e){showStatus('❌ '+e.message);});
+};
+window.clearDayStops=function(date){
+  if(!confirm('Очистить весь день '+date+'?')) return;
+  showStatus('Очищаем...');
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);
+    h=_clearDay(h,date);
+    return ghPush(h,x.sha,'clear: '+date);
+  }).then(function(){
+    showStatus('✅ День очищен. Обновляем через 30 сек...');
+    setTimeout(function(){location.reload();},30000);
+  }).catch(function(e){showStatus('❌ '+e.message);});
+};
+
+function enhanceUI(){
+  document.querySelectorAll('[data-date]').forEach(function(card){
+    var date=card.dataset.date;
+    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    card.querySelectorAll('.stop-name').forEach(function(el){
+      if(el.dataset.enh) return;
+      el.dataset.enh='1';
+      var name=el.textContent.trim();
+      if(!name) return;
+      var delBtn=document.createElement('button');
+      delBtn.className='stop-del-btn';
+      delBtn.title='Удалить';
+      delBtn.innerHTML='&times;';
+      delBtn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
+      var a=document.createElement('a');
+      a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      a.className='sn-link';
+      a.textContent=name;
+      el.textContent='';
+      el.appendChild(delBtn);
+      el.appendChild(a);
+    });
+    if(card.querySelector('.struct-edit-panel')) return;
+    var suf=date.replace(/-/g,'');
+    var panel=document.createElement('div');
+    panel.className='struct-edit-panel';
+    panel.innerHTML=
+      '<div class="struct-add-form">'+
+        '<input type="time" class="struct-time-in" id="stime-'+suf+'" value="10:00">'+
+        '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
+        '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\',\'stime-'+suf+'\')">+ Добавить</button>'+
+      '</div>'+
+      '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить весь день</button>';
+    panel.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&e.target.classList.contains('struct-place-in'))
+        addStopToDay(date,'splace-'+suf,'stime-'+suf);
+    });
+    card.appendChild(panel);
+  });
+}
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',enhanceUI);
+else enhanceUI();
 })();
 </script>
-
 </body>
 </html>
