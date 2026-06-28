@@ -182,7 +182,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:17</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:21</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -494,7 +494,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:17:22";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:21:51";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -534,7 +534,7 @@ window.addEventListener('load', () => {
 </script>
 
 
-<script id="ui-upgrade-v3">
+<script id="ui-upgrade-v4">
 (function(){
 var REPO='artkri73/japan-2026';
 var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
@@ -596,45 +596,124 @@ function _removeStop(html,date,name){
   return html.slice(0,itemStart).trimEnd()+'\n'+html.slice(itemEnd).trimStart();
 }
 
+/* ── DOM helpers for optimistic UI ── */
+function _cardOf(date){return document.querySelector('[data-date="'+date+'"]');}
+function _showInd(card,msg,type){
+  if(!card) return;
+  var ind=card.querySelector('.save-ind')||document.createElement('span');
+  ind.className='save-ind '+type; ind.textContent=msg;
+  if(!ind.parentElement){
+    var p=card.querySelector('.struct-edit-panel');
+    if(p) p.insertBefore(ind,p.firstChild); else card.appendChild(ind);
+  }
+  if(type==='saved'||type==='error')
+    setTimeout(function(){ind.style.opacity='0';setTimeout(function(){if(ind.parentElement)ind.remove();},400);},2500);
+}
+function _enhanceNew(el,date,name){
+  var nd=el.querySelector ? el.querySelector('.stop-name') : el;
+  if(!nd||nd.dataset.enh) return;
+  nd.dataset.enh='1';
+  var btn=document.createElement('button');
+  btn.className='stop-del-btn'; btn.title='Удалить'; btn.innerHTML='&times;';
+  btn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
+  var a=document.createElement('a');
+  a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
+  a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
+  nd.textContent=''; nd.appendChild(btn); nd.appendChild(a);
+}
+function _makeStopEl(date,name,time){
+  var card=_cardOf(date);
+  var proto=card&&card.querySelector('[class*="stop-item"],li');
+  var el;
+  if(proto){
+    el=proto.cloneNode(true);
+    var te=el.querySelector('[class*="stop-time"]'),ne=el.querySelector('[class*="stop-name"]');
+    if(te) te.textContent=time||'';
+    if(ne){ne.dataset.enh='';ne.textContent=name;}
+    var tr=el.querySelector('[class*="transport"]'); if(tr) tr.textContent='';
+  } else {
+    el=document.createElement('div'); el.className='stop-item';
+    el.innerHTML='<div class="stop-time">'+(time||'')+'</div><div class="stop-name">'+name+'</div>';
+  }
+  _enhanceNew(el,date,name);
+  return el;
+}
+function _findItemEl(card,name){
+  var els=card.querySelectorAll('.stop-name');
+  for(var i=0;i<els.length;i++){
+    var el=els[i],n=(el.querySelector('a')||el).textContent.trim();
+    if(n===name) return el.closest('[class*="stop-item"],li')||el.parentElement;
+  }
+  return null;
+}
+function _allStopItems(card){
+  var items=Array.from(card.querySelectorAll('[class*="stop-item"],li'));
+  if(!items.length){
+    card.querySelectorAll('.stop-name').forEach(function(el){
+      var p=el.closest('li')||el.parentElement;
+      if(p&&p!==card&&items.indexOf(p)<0) items.push(p);
+    });
+  }
+  return items.filter(function(el){return !el.classList.contains('struct-edit-panel')&&!el.querySelector('.struct-edit-panel');});
+}
+
+/* ── Actions — optimistic UI ── */
 window.addStopToDay=function(date,placeId,timeId){
-  var name=(document.getElementById(placeId)||{}).value;
-  if(name) name=name.trim();
+  var inp=document.getElementById(placeId);
+  var name=inp?inp.value.trim():'';
   var t=(document.getElementById(timeId)||{}).value||'';
-  if(!name){if(document.getElementById(placeId))document.getElementById(placeId).focus();return;}
-  showStatus('Сохраняем...');
+  if(!name){if(inp)inp.focus();return;}
+  var card=_cardOf(date);
+  /* 1. DOM immediately */
+  var newEl=_makeStopEl(date,name,t);
+  if(card){var ep=card.querySelector('.struct-edit-panel');ep?card.insertBefore(newEl,ep):card.appendChild(newEl);}
+  if(inp) inp.value='';
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
   ghFetch().then(function(x){
-    var h=stampHtml(x.html);
-    h=_addStop(h,date,name,t);
+    var h=stampHtml(x.html);h=_addStop(h,date,name,t);
     return ghPush(h,x.sha,'add: '+name+(t?' в '+t:'')+' ('+date+')');
-  }).then(function(){
-    document.getElementById(placeId).value='';
-    showStatus('✅ Добавлено: "'+name+'"'+(t?' в '+t:'')+'. Обновляем через 30 сек...');
-    setTimeout(function(){location.reload();},30000);
-  }).catch(function(e){showStatus('❌ '+e.message);});
+  }).then(function(){_showInd(card,'✅ Сохранено','saved');})
+  .catch(function(e){
+    if(newEl&&newEl.parentElement)newEl.parentElement.removeChild(newEl);
+    _showInd(card,'❌ '+e.message,'error');
+  });
 };
 window.removeStopFromDay=function(date,name){
-  if(!confirm('Удалить "'+name+'"?')) return;
-  showStatus('Удаляем...');
+  var card=_cardOf(date);
+  var item=card?_findItemEl(card,name):null;
+  /* 1. DOM immediately */
+  var saved={el:item,parent:item&&item.parentElement,next:item&&item.nextSibling};
+  if(item){item.style.transition='opacity .15s';item.style.opacity='0';setTimeout(function(){if(item.parentElement)item.parentElement.removeChild(item);},150);}
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
   ghFetch().then(function(x){
-    var h=stampHtml(x.html);
-    h=_removeStop(h,date,name);
+    var h=stampHtml(x.html);h=_removeStop(h,date,name);
     return ghPush(h,x.sha,'remove: '+name+' ('+date+')');
-  }).then(function(){
-    showStatus('✅ Удалено: "'+name+'". Обновляем через 30 сек...');
-    setTimeout(function(){location.reload();},30000);
-  }).catch(function(e){showStatus('❌ '+e.message);});
+  }).then(function(){_showInd(card,'✅ Удалено','saved');})
+  .catch(function(e){
+    /* rollback */
+    if(saved.el){saved.el.style.opacity='1';if(saved.parent){if(saved.next&&saved.next.parentElement===saved.parent)saved.parent.insertBefore(saved.el,saved.next);else saved.parent.appendChild(saved.el);}}
+    _showInd(card,'❌ '+e.message,'error');
+  });
 };
 window.clearDayStops=function(date){
-  if(!confirm('Очистить весь день '+date+'?')) return;
-  showStatus('Очищаем...');
+  if(!confirm('Очистить весь день?')) return;
+  var card=_cardOf(date);
+  var items=card?_allStopItems(card):[];
+  /* 1. DOM immediately */
+  var saved=items.map(function(el){return{el:el,parent:el.parentElement,next:el.nextSibling};});
+  items.forEach(function(el){el.style.transition='opacity .15s';el.style.opacity='0';setTimeout(function(){if(el.parentElement)el.parentElement.removeChild(el);},150);});
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
   ghFetch().then(function(x){
-    var h=stampHtml(x.html);
-    h=_clearDay(h,date);
+    var h=stampHtml(x.html);h=_clearDay(h,date);
     return ghPush(h,x.sha,'clear: '+date);
-  }).then(function(){
-    showStatus('✅ День очищен. Обновляем через 30 сек...');
-    setTimeout(function(){location.reload();},30000);
-  }).catch(function(e){showStatus('❌ '+e.message);});
+  }).then(function(){_showInd(card,'✅ День очищен','saved');})
+  .catch(function(e){
+    saved.forEach(function(s){s.el.style.opacity='1';if(s.parent){if(s.next&&s.next.parentElement===s.parent)s.parent.insertBefore(s.el,s.next);else s.parent.appendChild(s.el);}});
+    _showInd(card,'❌ '+e.message,'error');
+  });
 };
 
 function enhanceUI(){
