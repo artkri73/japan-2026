@@ -150,7 +150,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 12:41</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 12:47</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -279,8 +279,8 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
       <button class="edit-btn" onclick="openEdit('2026-10-04',9)">✎</button>
       <div class="day-num">День 9 · 4 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"><div class="stop-item"><div class="stop-time">10:00</div><div class="stop-content"><div class="stop-name">תוסיף  ביקור במוזיאון</div></div></div><div class="stop-item"><div class="stop-time">—</div><div class="stop-content"><div class="stop-name">Стереть все</div></div></div></div>
-    </div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">10:00</div><div class="stop-content"><div class="stop-name">תוסיף  ביקור במוזיאון</div></div></div>
+</div>
 
     <div class="day-card" data-date="2026-10-05">
       <button class="edit-btn" onclick="openEdit('2026-10-05',10)">✎</button>
@@ -447,10 +447,12 @@ async function sendCmd() {
   const token = localStorage.getItem('gh_token');
   if (!token) { openSettings(); return; }
   closeCmd();
-  const isClear = /נקה|ניקוי|מחוק|מחק|תמחק|להסיר|הסר|פנה|תפנה|ריק|очисти|очистить|удали|убери|сотри|очисть|clear|delete|remove/i.test(msg);
+  const isClear = /נקה|ניקוי|מחוק|מחק|תמחק|הסר|פנה|תפנה|ריק|очисти|очистить|удали|убери|сотри|стер|стереть|стирать|удалить|убрать|clear|delete|remove/i.test(msg);
   const timeM = msg.match(/\b(\d{1,2}:\d{2})\b/);
   const timeStr = timeM ? timeM[1] : null;
-  const place = isClear ? null : msg.replace(/\b\d{1,2}:\d{2}\b/, '').trim().replace(/^[\s,;:-]+|[\s,;:-]+$/g, '');
+    // Strip action verbs so they don't become place names
+    const _cleanMsg = msg.replace(/^(תוסיף|הוסף|תוסף|הכנס|שים|הכנסי|добавь|добавить|поставь|вставь|включи|запиши|добавь-ка|add|insert|put)\s+/i, '').trim();
+  const place = isClear ? null : _cleanMsg.replace(/\b\d{1,2}:\d{2}\b/, '').trim().replace(/^[\s,;:-]+|[\s,;:-]+$/g, '');
   showStatus('⏳ Сохраняем...');
   try {
     const gr = await fetch(GH_API + 'index.html', {
@@ -462,7 +464,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:41:39";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:47:53";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
