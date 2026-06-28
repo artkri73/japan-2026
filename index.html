@@ -360,6 +360,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 
 <!-- Settings button -->
 <div style="position:fixed;bottom:16px;right:16px">
+  <button class="pdf-btn" onclick="window.print()">PDF</button>
   <button onclick="openSettings()" style="background:#1a1a2e;border:1px solid #2a2a4a;color:#888;padding:10px 14px;border-radius:20px;font-size:12px;cursor:pointer">⚙️ Настройки</button>
 </div>
 
@@ -471,7 +472,7 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-06-28T04:38:37.922209"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-06-28T08:55:10"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
