@@ -324,11 +324,10 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 <!-- Settings Modal -->
 <div class="modal-overlay" id="settings-modal">
   <div class="modal">
-    <h2>⚙️ Настройка Telegram</h2>
-    <div class="sub">Вводится один раз — сохраняется в браузере</div>
+    <h2>⚙️ Настройки</h2>
+    <div class="sub">GitHub Token — вводится один раз, сохраняется в браузере</div>
     <div id="settings-error" style="display:none;background:#3a1515;border:1px solid #cc3333;border-radius:8px;padding:8px 12px;font-size:12px;color:#ff8888;margin-bottom:12px"></div>
     <div class="field"><label>GitHub Token</label><input type="password" id="gh-token" placeholder="ghp_..."></div>
-    <div class="field"><label>Telegram Chat ID (группа)</label><input type="text" id="tg-chatid" placeholder="-5477207100"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeSettings()">Отмена</button>
       <button class="btn-save" onclick="saveSettings()">Сохранить</button>
@@ -370,16 +369,11 @@ const GH_API = 'https://api.github.com/repos/' + REPO + '/contents/';
 let currentDate = null, currentDay = null;
 
 function getSettings() {
-  return {
-    ghToken: localStorage.getItem('gh_token') || '',
-    chatId: localStorage.getItem('tg_chat_id') || ''
-  };
+  return { ghToken: localStorage.getItem('gh_token') || '' };
 }
 
 function openSettings() {
-  const s = getSettings();
-  document.getElementById('gh-token').value = s.ghToken;
-  document.getElementById('tg-chatid').value = s.chatId;
+  document.getElementById('gh-token').value = localStorage.getItem('gh_token') || '';
   document.getElementById('settings-error').style.display = 'none';
   document.getElementById('settings-modal').classList.add('open');
 }
@@ -390,10 +384,8 @@ function closeSettings() {
 
 function saveSettings() {
   const gh = document.getElementById('gh-token').value.trim();
-  const cid = document.getElementById('tg-chatid').value.trim();
   if (!gh) { showSettingsError('Введите GitHub Token'); return; }
   localStorage.setItem('gh_token', gh);
-  if (cid) localStorage.setItem('tg_chat_id', cid);
   closeSettings();
   showStatus('✅ Настройки сохранены');
 }
@@ -416,52 +408,70 @@ function closeCmd() {
   document.getElementById('cmd-modal').classList.remove('open');
 }
 
+// ── Direct-edit helpers (add/clear stops in-browser) ─────────────────────
+function _findStopsBounds(html, date) {
+  const dp = html.indexOf('data-date="' + date + '"');
+  if (dp < 0) return null;
+  const sl = html.indexOf('<div class="stops-list">', dp);
+  if (sl < 0) return null;
+  const s = html.indexOf('>', sl) + 1;
+  let depth = 1, p = s;
+  while (depth > 0 && p < html.length) {
+    const o = html.indexOf('<div', p), c = html.indexOf('</div>', p);
+    if (c < 0) break;
+    if (o >= 0 && o < c) { depth++; p = o + 4; }
+    else { depth--; if (!depth) return [s, c]; p = c + 6; }
+  }
+  return null;
+}
+function _clearDay(html, date) {
+  const b = _findStopsBounds(html, date);
+  return b ? html.slice(0, b[0]) + html.slice(b[1]) : html;
+}
+function _addStop(html, date, name, time) {
+  const b = _findStopsBounds(html, date);
+  if (!b) return html;
+  const t = time ? '<div class="stop-time">' + time + '</div>' : '<div class="stop-time">—</div>';
+  const blk = '<div class="stop-item">' + t + '<div class="stop-content"><div class="stop-name">' + name + '</div></div></div>';
+  return html.slice(0, b[1]) + blk + html.slice(b[1]);
+}
 async function sendCmd() {
   const msg = document.getElementById('cmd-input').value.trim();
   if (!msg) return;
-  const s = getSettings();
+  const token = localStorage.getItem('gh_token');
+  if (!token) { openSettings(); return; }
   closeCmd();
-  showStatus('⏳ Отправка...');
+  const isClear = /נקה|ניקוי|очисти|очистить|удали|убери|clear|delete|remove/i.test(msg);
+  const timeM = msg.match(/\b(\d{1,2}:\d{2})\b/);
+  const timeStr = timeM ? timeM[1] : null;
+  const place = isClear ? null : msg.replace(/\b\d{1,2}:\d{2}\b/, '').trim().replace(/^[\s,;:-]+|[\s,;:-]+$/g, '');
+  showStatus('⏳ Сохраняем...');
   try {
-    // Get current SHA
-    const r = await fetch(GH_API + 'pending_edit.json', {
-      headers: { Authorization: 'token ' + s.ghToken, Accept: 'application/vnd.github.v3+json' }
+    const gr = await fetch(GH_API + 'index.html', {
+      headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
     });
-    const d = await r.json();
-    const sha = d.sha;
-    const payload = JSON.stringify({ msg: msg, ts: Date.now(), done: false });
-    // Write pending_edit.json
-    await fetch(GH_API + 'pending_edit.json', {
+    if (!gr.ok) throw new Error('GET ' + gr.status);
+    const gd = await gr.json();
+    let html = decodeURIComponent(escape(atob(gd.content.replace(/\n/g, ''))));
+    html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
+    const now = new Date().toISOString().slice(0, 19);
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "' + now + '";');
+    const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
-      headers: { Authorization: 'token ' + s.ghToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: 'edit: ' + msg.slice(0,40), content: btoa(unescape(encodeURIComponent(payload))), sha: sha })
+      headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: (isClear ? 'clear' : 'add') + ' day ' + currentDay,
+        content: btoa(unescape(encodeURIComponent(html))),
+        sha: gd.sha
+      })
     });
-    showStatus('⏳ Бот обрабатывает...');
-    pollUntilDone(s.ghToken, 0);
+    if (!pr.ok) { const e = await pr.json(); throw new Error(e.message || 'PUT ' + pr.status); }
+    showStatus('✅ Сохранено! Страница обновится через ~30 сек.');
   } catch(e) {
     showStatus('❌ Ошибка: ' + e.message);
   }
 }
 
-async function pollUntilDone(token, attempts) {
-  if (attempts > 25) { showStatus('⏱ Превышено время ожидания'); return; }
-  await new Promise(r => setTimeout(r, 2000));
-  try {
-    const r = await fetch(GH_API + 'pending_edit.json?t=' + Date.now(), {
-      headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
-    });
-    const d = await r.json();
-    const pe = JSON.parse(atob(d.content));
-    if (pe.done) {
-      showStatus('✅ Обновлено! Перезагрузка...');
-      setTimeout(() => { window.location.href = window.location.pathname + '?v=' + Date.now(); }, 1500);
-    } else {
-      pollUntilDone(token, attempts + 1);
-    }
-  } catch(e) {
-    pollUntilDone(token, attempts + 1);
-  }
-}
 
 function showStatus(msg) {
   const bar = document.getElementById('status-bar');
@@ -479,6 +489,6 @@ window.addEventListener('load', () => {
   if (!localStorage.getItem('gh_token')) setTimeout(openSettings, 800);
 });
 </script>
-<script>document.addEventListener("DOMContentLoaded",function(){(function(){var ts=PAGE_TIMESTAMP||'',p=ts.replace('T',' ').slice(0,16).split(' '),d=(p[0]||'').split('-');if(d[2])(function(){var ts=PAGE_TIMESTAMP||'',p=ts.replace('T',' ').slice(0,16).split(' '),d=(p[0]||'').split('-');if(d[2])(function(){var ts=PAGE_TIMESTAMP||'',p=ts.replace('T',' ').slice(0,16).split(' '),d=(p[0]||'').split('-');if(d[2])document.getElementById('updated-line').textContent='Обновлено: '+d[2]+'.'+d[1]+'.'+d[0]+(p[1]?' в '+p[1]:'');})();})();})();});</script>
+
 </body>
 </html>
