@@ -133,6 +133,11 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
   #settings-float {display:none!important}
 }
 
+
+.refresh-btn{background:none;border:1px solid #2a2a4a;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;cursor:pointer;margin-left:8px;vertical-align:middle;transition:all .2s}
+.refresh-btn:hover{border-color:#5599ff;color:#5599ff}
+.stop-name a{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;text-decoration-color:#3a3a6a}
+.stop-name a:hover{text-decoration-color:#5599ff;color:#99bbff}
 </style>
 </head>
 <body>
@@ -145,7 +150,8 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 12:29</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 12:41</div>
+  <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
 <div class="cities">
@@ -456,7 +462,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:29:53";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:41:39";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -493,6 +499,34 @@ const PAGE_TIMESTAMP = "2026-06-28T09:32:59";t.getElementById('updated-line').te
 window.addEventListener('load', () => {
   if (!localStorage.getItem('gh_token')) setTimeout(openSettings, 800);
 });
+</script>
+
+
+<script>
+(function(){
+  // Make every stop-name clickable → Google Maps
+  var stops = document.querySelectorAll('.stop-name');
+  stops.forEach(function(el){
+    if(el.querySelector('a')) return; // already linked
+    var name = el.textContent.trim();
+    if(!name) return;
+    // Find city context by walking up DOM
+    var city = 'Япония';
+    var cb = el.closest('.city-block');
+    if(cb){
+      var cn = cb.querySelector('.city-name');
+      if(cn) city = cn.textContent.trim();
+    }
+    var query = encodeURIComponent(name + ', ' + city);
+    var a = document.createElement('a');
+    a.href = 'https://www.google.com/maps/search/' + query;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.innerHTML = el.innerHTML;
+    el.innerHTML = '';
+    el.appendChild(a);
+  });
+})();
 </script>
 
 </body>
