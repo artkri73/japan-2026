@@ -145,7 +145,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: —</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 09:03</div>
 </div>
 
 <div class="cities">
@@ -472,12 +472,13 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-06-28T08:55:10"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-06-28T09:03:58"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
   if (!localStorage.getItem('gh_token')) setTimeout(openSettings, 800);
 });
 </script>
+<script>document.addEventListener("DOMContentLoaded",function(){(function(){var ts=PAGE_TIMESTAMP||'',p=ts.replace('T',' ').slice(0,16).split(' '),d=(p[0]||'').split('-');if(d[2])document.getElementById('updated-line').textContent='Обновлено: '+d[2]+'.'+d[1]+'.'+d[0]+(p[1]?' в '+p[1]:'');})();});</script>
 </body>
 </html>
