@@ -139,35 +139,162 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 .stop-name a{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;text-decoration-color:#3a3a6a}
 .stop-name a:hover{text-decoration-color:#5599ff;color:#99bbff}
 
-/* ── Japan-2026 UI Upgrade ── */
-.refresh-btn{background:none;border:1px solid #2a2a4a;color:#666;padding:2px 8px;
-  border-radius:12px;font-size:11px;cursor:pointer;margin-left:8px;vertical-align:middle;transition:all .2s}
-.refresh-btn:hover{border-color:#5599ff;color:#5599ff}
-.stop-del-btn{background:none;border:none;color:rgba(180,150,150,.45);cursor:pointer;
-  padding:0 5px 0 0;font-size:15px;line-height:1;vertical-align:middle;transition:color .15s}
-.stop-del-btn:hover{color:#e05555}
-.stop-name a.sn-link{color:inherit;text-decoration:underline;text-decoration-style:dotted;
-  text-underline-offset:3px;text-decoration-color:rgba(100,120,220,.35)}
-.stop-name a.sn-link:hover{color:#7aabf0;text-decoration-color:#7aabf0}
-.struct-edit-panel{border-top:1px solid rgba(100,100,200,.15);margin-top:10px;padding:10px 0 4px}
-.struct-add-form{display:flex;gap:6px;align-items:center;margin-bottom:6px}
-.struct-time-in{width:86px;background:rgba(255,255,255,.05);border:1px solid rgba(100,120,220,.3);
-  border-radius:8px;padding:6px 8px;font-size:13px;color:inherit;color-scheme:dark}
-.struct-place-in{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(100,120,220,.3);
-  border-radius:8px;padding:6px 10px;font-size:13px;color:inherit}
-.struct-place-in::placeholder{color:rgba(160,160,200,.4)}
-.struct-add-btn{background:rgba(60,100,200,.25);border:1px solid rgba(80,130,220,.5);
-  border-radius:8px;padding:6px 13px;font-size:13px;color:#90b8f8;cursor:pointer;white-space:nowrap;transition:background .15s}
-.struct-add-btn:hover{background:rgba(60,100,200,.45)}
-.struct-clear-btn{width:100%;background:none;border:1px solid rgba(200,80,80,.25);
-  border-radius:8px;padding:5px;font-size:12px;color:rgba(210,110,110,.7);cursor:pointer;transition:background .15s}
-.struct-clear-btn:hover{background:rgba(200,60,60,.12);color:#e08888}
-.struct-place-in:focus,.struct-time-in:focus{outline:none;border-color:rgba(100,150,255,.7);
-  box-shadow:0 0 0 2px rgba(80,120,220,.15)}
 
-.app-logo-bar{display:flex;align-items:center;gap:10px;padding:8px 0 4px}
-.app-logo-icon{display:inline-block;vertical-align:middle;flex-shrink:0}
-.app-logo-title{font-size:11px;color:rgba(180,180,220,.6);letter-spacing:.5px;text-transform:uppercase}
+/* ── Japan-2026 Fresh Design v2 ── */
+:root {
+  --jbg: #f0f2f8;
+  --jcard: #ffffff;
+  --jstop: #f7f8fc;
+  --jbord: rgba(0,0,0,.09);
+  --jbord2: rgba(0,0,0,.16);
+  --jtext: #111827;
+  --jtext2: #6b7280;
+  --jtext3: #9ca3af;
+  --jacc: #2563eb;
+  --jaccbg: rgba(37,99,235,.08);
+  --jred: #ef4444;
+  --jredbg: rgba(239,68,68,.07);
+  --jr: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --jbg: #0f1020;
+    --jcard: #181b2e;
+    --jstop: #1e2236;
+    --jbord: rgba(255,255,255,.13);
+    --jbord2: rgba(255,255,255,.22);
+    --jtext: #e2e8f0;
+    --jtext2: #94a3b8;
+    --jtext3: #4b5870;
+    --jacc: #60a5fa;
+    --jaccbg: rgba(96,165,250,.12);
+    --jred: #f87171;
+    --jredbg: rgba(248,113,113,.09);
+  }
+}
+
+/* Stop items — card look WITHOUT overriding layout */
+[data-date] .stop-item,
+[data-date] li.stop-item {
+  background: var(--jstop) !important;
+  border: 1px solid var(--jbord) !important;
+  border-radius: var(--jr) !important;
+  margin-bottom: 6px !important;
+  transition: border-color .15s !important;
+}
+[data-date] .stop-item:hover,
+[data-date] li.stop-item:hover {
+  border-color: var(--jbord2) !important;
+}
+
+/* Refresh button */
+.refresh-btn {
+  background: none !important;
+  border: 1px solid var(--jbord2) !important;
+  color: var(--jtext2) !important;
+  padding: 3px 10px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  cursor: pointer;
+  margin-left: 8px !important;
+  vertical-align: middle;
+  transition: all .2s;
+}
+.refresh-btn:hover { border-color: var(--jacc) !important; color: var(--jacc) !important; }
+
+/* Delete button */
+.stop-del-btn {
+  background: none !important;
+  border: none !important;
+  color: var(--jtext3) !important;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 16px;
+  line-height: 1;
+  transition: color .15s;
+  flex-shrink: 0;
+}
+.stop-del-btn:hover { color: var(--jred) !important; }
+
+/* Maps link */
+.stop-name a.sn-link {
+  color: inherit !important;
+  text-decoration: none !important;
+  border-bottom: 1px solid var(--jbord2);
+  transition: border-color .15s, color .15s;
+}
+.stop-name a.sn-link:hover {
+  color: var(--jacc) !important;
+  border-bottom-color: var(--jacc);
+}
+
+/* Struct edit panel */
+.struct-edit-panel {
+  border-top: 1px solid var(--jbord) !important;
+  margin-top: 12px !important;
+  padding: 12px 0 4px !important;
+}
+.struct-add-form {
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  margin-bottom: 8px !important;
+}
+.struct-time-in {
+  width: 88px !important;
+  background: var(--jcard) !important;
+  border: 1px solid var(--jbord2) !important;
+  border-radius: var(--jr) !important;
+  padding: 7px 8px !important;
+  font-size: 13px !important;
+  color: var(--jtext) !important;
+  color-scheme: light dark;
+}
+.struct-place-in {
+  flex: 1 !important;
+  background: var(--jcard) !important;
+  border: 1px solid var(--jbord2) !important;
+  border-radius: var(--jr) !important;
+  padding: 7px 10px !important;
+  font-size: 13px !important;
+  color: var(--jtext) !important;
+}
+.struct-place-in::placeholder { color: var(--jtext3); }
+.struct-time-in:focus, .struct-place-in:focus {
+  outline: none !important;
+  border-color: var(--jacc) !important;
+  box-shadow: 0 0 0 3px var(--jaccbg) !important;
+}
+.struct-add-btn {
+  background: var(--jacc) !important;
+  border: none !important;
+  border-radius: var(--jr) !important;
+  padding: 7px 14px !important;
+  font-size: 13px !important;
+  color: #fff !important;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity .15s;
+}
+.struct-add-btn:hover { opacity: .85; }
+.struct-clear-btn {
+  width: 100% !important;
+  background: none !important;
+  border: 1px solid var(--jbord) !important;
+  border-radius: var(--jr) !important;
+  padding: 7px !important;
+  font-size: 12px !important;
+  color: var(--jred) !important;
+  cursor: pointer;
+  transition: background .15s;
+}
+.struct-clear-btn:hover { background: var(--jredbg) !important; }
+
+/* Save indicator */
+.save-ind { display: block; font-size: 11px; padding: 3px 0 1px; transition: opacity .4s; min-height: 16px; }
+.save-ind.saving { color: var(--jtext2); }
+.save-ind.saved  { color: #22c55e; }
+.save-ind.error  { color: var(--jred); }
 
 </style>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f5f0e8%22/%3E%0A%20%20%3Cpath%20d%3D%22M3%2015%20Q3%2011%207%2011%20L25%2011%20Q29%2011%2029%2015%20L29%2021%20Q29%2023%2027%2023%20L5%2023%20Q3%2023%203%2021Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L19%205%20Q24%205%2025%2011Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M17%205%20Q23%206%2025%2011%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L17%205%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%3C/svg%3E">
@@ -182,7 +309,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:26</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:40</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -494,7 +621,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:26:34";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:40:39";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
