@@ -141,196 +141,212 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 
 
 
-/* ── Japan-2026 Fresh Design v3 ── */
-:root {
-  --jcard: #ffffff;
-  --jstop: #f7f8fc;
-  --jbord: rgba(0,0,0,.09);
-  --jbord2: rgba(0,0,0,.18);
-  --jtext: #111827;
-  --jtext2: #6b7280;
-  --jtext3: #9ca3af;
-  --jacc: #2563eb;
-  --jaccbg: rgba(37,99,235,.08);
-  --jred: #ef4444;
-  --jredbg: rgba(239,68,68,.07);
-  --jr: 10px;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --jcard: #181b2e;
-    --jstop: #1e2236;
-    --jbord: rgba(255,255,255,.12);
-    --jbord2: rgba(255,255,255,.22);
-    --jtext: #e2e8f0;
-    --jtext2: #94a3b8;
-    --jtext3: #4a5568;
-    --jacc: #60a5fa;
-    --jaccbg: rgba(96,165,250,.13);
-    --jred: #f87171;
-    --jredbg: rgba(248,113,113,.09);
-  }
+
+/* ── Japan-2026 Design v4 — Light ── */
+
+/* Force light mode */
+html, body {
+  color-scheme: light !important;
+  background: #f0f3f9 !important;
+  color: #111827 !important;
 }
 
-/* ── Stop items: card with left accent line ── */
+/* Override any hardcoded dark backgrounds on containers */
+.city-block, .city-section, [class*="city"],
+.app-container, .main-content, .content,
+main, article, section { background: transparent !important; }
+
+/* Day cards — white cards */
+[data-date] {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,.08) !important;
+  border-radius: 14px !important;
+  margin-bottom: 12px !important;
+  padding: 16px !important;
+  overflow: hidden !important;
+}
+
+/* Day title — blue left accent */
+[data-date] > .day-title,
+[data-date] > .day-header > .day-title,
+[data-date] > h2, [data-date] > h3,
+[data-date] > .title, [data-date] > strong {
+  border-left: 3px solid #2563eb !important;
+  padding-left: 10px !important;
+  color: #111827 !important;
+  font-size: 15px !important;
+  margin-bottom: 12px !important;
+}
+
+/* Date label above title */
+[data-date] > .day-meta,
+[data-date] > .day-date,
+[data-date] > .date-label,
+[data-date] > small {
+  color: #9ca3af !important;
+  font-size: 12px !important;
+}
+
+/* Stop items — clean white card (lighter than day card) */
 [data-date] .stop-item,
 [data-date] li.stop-item {
-  background: var(--jstop) !important;
-  border: 1px solid var(--jbord) !important;
-  border-left: 3px solid var(--jacc) !important;
-  border-radius: var(--jr) !important;
+  background: #f8f9fc !important;
+  border: 1px solid rgba(0,0,0,.07) !important;
+  border-radius: 10px !important;
   margin-bottom: 6px !important;
+  padding: 10px 12px !important;
   transition: border-color .15s !important;
-  overflow: hidden !important;
 }
 [data-date] .stop-item:hover,
 [data-date] li.stop-item:hover {
-  border-color: var(--jbord2) !important;
-  border-left-color: var(--jacc) !important;
+  border-color: rgba(37,99,235,.25) !important;
 }
-
-/* ── Hide the top-right edit/icon button on day cards ── */
-[data-date] > .day-actions,
-[data-date] > .card-actions,
-[data-date] .day-header button:not(.struct-add-btn):not(.struct-clear-btn):not(.stop-del-btn):not(.refresh-btn),
-[data-date] > button:not(.struct-add-btn):not(.struct-clear-btn):not(.stop-del-btn):not(.refresh-btn),
-[data-date] .icon-btn,
-[data-date] .edit-day-btn,
-[data-date] .day-edit-btn,
-[data-date] .btn-edit,
-[data-date] [class*="edit-btn"],
-[data-date] [class*="day-btn"],
-[data-date] .share-btn,
-[data-date] .options-btn {
-  display: none !important;
+.stop-time {
+  color: #6b7280 !important;
+  font-size: 13px !important;
+  font-variant-numeric: tabular-nums;
 }
+.stop-name { color: #111827 !important; font-size: 14px !important; }
 
-/* ── Refresh button ── */
-.refresh-btn {
+/* Day tab bar */
+#day-tab-bar {
+  display: flex !important;
+  gap: 6px !important;
+  padding: 0 0 14px !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+}
+#day-tab-bar::-webkit-scrollbar { display: none; }
+.day-tab {
+  flex-shrink: 0 !important;
   background: none !important;
-  border: 1px solid var(--jbord2) !important;
-  color: var(--jtext2) !important;
+  border: 1.5px solid rgba(37,99,235,.35) !important;
+  color: #2563eb !important;
+  border-radius: 20px !important;
+  padding: 5px 14px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.day-tab.active {
+  background: #2563eb !important;
+  color: #fff !important;
+  border-color: #2563eb !important;
+}
+.day-tab:hover:not(.active) {
+  background: rgba(37,99,235,.07) !important;
+}
+
+/* Refresh button */
+.refresh-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  background: none !important;
+  border: 1px solid rgba(0,0,0,.15) !important;
+  color: #6b7280 !important;
   padding: 3px 10px !important;
   border-radius: 20px !important;
   font-size: 11px !important;
   cursor: pointer;
-  margin-left: 8px !important;
-  vertical-align: middle;
+  margin-left: 6px !important;
   transition: all .2s;
 }
-.refresh-btn:hover { border-color: var(--jacc) !important; color: var(--jacc) !important; }
+.refresh-btn:hover { border-color: #2563eb !important; color: #2563eb !important; }
 
-/* ── Delete button ── */
+/* Delete button */
 .stop-del-btn {
-  background: none !important;
-  border: none !important;
-  color: var(--jtext3) !important;
-  cursor: pointer;
-  padding: 0 4px;
-  font-size: 15px;
-  line-height: 1;
-  transition: color .15s;
-  flex-shrink: 0;
+  background: none !important; border: none !important;
+  color: #d1d5db !important; cursor: pointer;
+  padding: 0 4px; font-size: 15px; line-height: 1;
+  transition: color .15s; flex-shrink: 0;
 }
-.stop-del-btn:hover { color: var(--jred) !important; }
+.stop-del-btn:hover { color: #ef4444 !important; }
 
-/* ── Maps link ── */
+/* Maps link */
 .stop-name a.sn-link {
-  color: inherit !important;
-  text-decoration: none !important;
-  border-bottom: 1px solid var(--jbord2);
+  color: #111827 !important; text-decoration: none !important;
+  border-bottom: 1px solid rgba(0,0,0,.12);
   transition: border-color .15s, color .15s;
 }
-.stop-name a.sn-link:hover {
-  color: var(--jacc) !important;
-  border-bottom-color: var(--jacc) !important;
-}
+.stop-name a.sn-link:hover { color: #2563eb !important; border-bottom-color: #2563eb !important; }
 
-/* ── Struct edit panel — FIX OVERFLOW ── */
+/* Struct edit panel */
 .struct-edit-panel {
-  border-top: 1px solid var(--jbord) !important;
-  margin-top: 12px !important;
-  padding: 12px !important;
-  box-sizing: border-box !important;
-  width: 100% !important;
-  overflow: hidden !important;
+  border-top: 1px solid rgba(0,0,0,.07) !important;
+  margin-top: 10px !important;
+  padding: 10px 0 2px !important;
 }
 .struct-add-form {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  gap: 6px !important;
-  align-items: center !important;
-  margin-bottom: 8px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
+  display: flex !important; gap: 6px !important;
+  align-items: center !important; margin-bottom: 8px !important;
   overflow: hidden !important;
 }
 .struct-time-in {
-  width: 72px !important;
-  min-width: 72px !important;
-  max-width: 72px !important;
-  flex-shrink: 0 !important;
-  background: var(--jcard) !important;
-  border: 1px solid var(--jbord2) !important;
-  border-radius: var(--jr) !important;
-  padding: 7px 6px !important;
-  font-size: 13px !important;
-  color: var(--jtext) !important;
-  color-scheme: light dark;
-  box-sizing: border-box !important;
+  width: 80px !important; flex-shrink: 0 !important;
+  background: #fff !important;
+  border: 1px solid rgba(0,0,0,.15) !important;
+  border-radius: 10px !important; padding: 8px 6px !important;
+  font-size: 13px !important; color: #111827 !important;
+  box-sizing: border-box !important; color-scheme: light;
 }
 .struct-place-in {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  width: 0 !important;
-  background: var(--jcard) !important;
-  border: 1px solid var(--jbord2) !important;
-  border-radius: var(--jr) !important;
-  padding: 7px 10px !important;
-  font-size: 13px !important;
-  color: var(--jtext) !important;
+  flex: 1 1 0 !important; min-width: 0 !important;
+  background: #fff !important;
+  border: 1px solid rgba(0,0,0,.15) !important;
+  border-radius: 10px !important; padding: 8px 10px !important;
+  font-size: 13px !important; color: #111827 !important;
   box-sizing: border-box !important;
 }
-.struct-place-in::placeholder { color: var(--jtext3); }
+.struct-place-in::placeholder { color: #9ca3af; }
 .struct-time-in:focus, .struct-place-in:focus {
   outline: none !important;
-  border-color: var(--jacc) !important;
-  box-shadow: 0 0 0 3px var(--jaccbg) !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 3px rgba(37,99,235,.1) !important;
 }
-.struct-add-btn {
-  flex-shrink: 0 !important;
-  background: var(--jacc) !important;
-  border: none !important;
-  border-radius: var(--jr) !important;
-  padding: 7px 12px !important;
-  font-size: 13px !important;
-  color: #fff !important;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: opacity .15s;
-  box-sizing: border-box !important;
-}
-.struct-add-btn:hover { opacity: .85; }
-.struct-clear-btn {
-  display: block !important;
-  width: 100% !important;
-  background: none !important;
-  border: 1px solid var(--jbord) !important;
-  border-radius: var(--jr) !important;
-  padding: 7px !important;
-  font-size: 12px !important;
-  color: var(--jred) !important;
-  cursor: pointer;
-  transition: background .15s;
-  box-sizing: border-box !important;
-}
-.struct-clear-btn:hover { background: var(--jredbg) !important; }
 
-/* ── Save indicator ── */
+/* Add button — light blue, full width */
+.struct-add-btn {
+  display: block !important; width: 100% !important;
+  background: rgba(37,99,235,.1) !important;
+  border: 1px solid rgba(37,99,235,.25) !important;
+  border-radius: 10px !important;
+  padding: 10px !important; font-size: 14px !important;
+  color: #2563eb !important; font-weight: 500 !important;
+  cursor: pointer; text-align: center !important;
+  transition: background .15s;
+  white-space: nowrap; box-sizing: border-box !important;
+}
+.struct-add-btn:hover { background: rgba(37,99,235,.18) !important; }
+.struct-add-form .struct-add-btn {
+  display: inline-block !important; width: auto !important;
+  padding: 8px 14px !important;
+}
+
+/* Clear button */
+.struct-clear-btn {
+  width: 100% !important; background: none !important;
+  border: 1px solid rgba(239,68,68,.2) !important;
+  border-radius: 10px !important; padding: 7px !important;
+  font-size: 12px !important; color: #ef4444 !important;
+  cursor: pointer; transition: background .15s;
+  box-sizing: border-box !important;
+}
+.struct-clear-btn:hover { background: rgba(239,68,68,.06) !important; }
+
+/* Save indicator */
 .save-ind { display: block; font-size: 11px; padding: 3px 0 2px; transition: opacity .4s; min-height: 16px; }
-.save-ind.saving { color: var(--jtext2); }
+.save-ind.saving { color: #9ca3af; }
 .save-ind.saved  { color: #22c55e; }
-.save-ind.error  { color: var(--jred); }
+.save-ind.error  { color: #ef4444; }
+
+/* Hide corner edit buttons */
+[data-date] .icon-btn, [data-date] .edit-day-btn,
+[data-date] .btn-edit, [data-date] [class*="edit-btn"],
+[data-date] [class*="day-btn"], [data-date] .share-btn { display: none !important; }
 
 </style>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f5f0e8%22/%3E%0A%20%20%3Cpath%20d%3D%22M3%2015%20Q3%2011%207%2011%20L25%2011%20Q29%2011%2029%2015%20L29%2021%20Q29%2023%2027%2023%20L5%2023%20Q3%2023%203%2021Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L19%205%20Q24%205%2025%2011Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M17%205%20Q23%206%2025%2011%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L17%205%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%3C/svg%3E">
@@ -345,7 +361,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:49</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 14:48</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -657,7 +673,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:49:06";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T14:48:08";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -697,14 +713,14 @@ window.addEventListener('load', () => {
 </script>
 
 
-<script id="ui-upgrade-v4">
+<script id="ui-upgrade-v6">
 (function(){
 var REPO='artkri73/japan-2026';
 var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
 
 function ghFetch(){
   var tok=localStorage.getItem('gh_token');
-  if(!tok){showStatus('❌ Нет GitHub token. Войди в ⚙️');return Promise.reject('no token');}
+  if(!tok){alert('❌ Нет GitHub token. Войди в Настройки.');return Promise.reject('no token');}
   return fetch(APIURL+'?t='+Date.now(),
     {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
     .then(function(r){return r.json();})
@@ -743,9 +759,7 @@ function _removeStop(html,date,name){
     var idx=before.lastIndexOf(pair[0]);
     if(idx>itemStart){itemStart=idx;tagName=pair[1];}
   });
-  if(itemStart<0){
-    return html.replace(new RegExp('<div[^>]*class="[^"]*stop-(?:name|time)[^"]*"[^>]*>[^<]*'+escaped+'[^<]*<\\/div>'),'');
-  }
+  if(itemStart<0) return html;
   var depth=0,itemEnd=-1;
   var closeRe=new RegExp('<'+tagName+'[\\s>]|</'+tagName+'>','g');
   closeRe.lastIndex=itemStart;
@@ -759,7 +773,7 @@ function _removeStop(html,date,name){
   return html.slice(0,itemStart).trimEnd()+'\n'+html.slice(itemEnd).trimStart();
 }
 
-/* ── DOM helpers for optimistic UI ── */
+/* ── DOM helpers ── */
 function _cardOf(date){return document.querySelector('[data-date="'+date+'"]');}
 function _showInd(card,msg,type){
   if(!card) return;
@@ -772,8 +786,8 @@ function _showInd(card,msg,type){
   if(type==='saved'||type==='error')
     setTimeout(function(){ind.style.opacity='0';setTimeout(function(){if(ind.parentElement)ind.remove();},400);},2500);
 }
-function _enhanceNew(el,date,name){
-  var nd=el.querySelector ? el.querySelector('.stop-name') : el;
+function _enhanceStop(el,date,name){
+  var nd=el.querySelector?el.querySelector('.stop-name'):el;
   if(!nd||nd.dataset.enh) return;
   nd.dataset.enh='1';
   var btn=document.createElement('button');
@@ -784,55 +798,47 @@ function _enhanceNew(el,date,name){
   a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
   nd.textContent=''; nd.appendChild(btn); nd.appendChild(a);
 }
-function _makeStopEl(date,name,time){
+function _makeStopEl(date,name,t){
   var card=_cardOf(date);
-  var proto=card&&card.querySelector('[class*="stop-item"],li');
+  var proto=card&&card.querySelector('.stop-item,li.stop-item');
   var el;
   if(proto){
     el=proto.cloneNode(true);
-    var te=el.querySelector('[class*="stop-time"]'),ne=el.querySelector('[class*="stop-name"]');
-    if(te) te.textContent=time||'';
+    var te=el.querySelector('.stop-time,.time'),ne=el.querySelector('.stop-name,.name');
+    if(te) te.textContent=t||'';
     if(ne){ne.dataset.enh='';ne.textContent=name;}
-    var tr=el.querySelector('[class*="transport"]'); if(tr) tr.textContent='';
+    var tr=el.querySelector('[class*="transport"]'); if(tr) tr.remove();
   } else {
     el=document.createElement('div'); el.className='stop-item';
-    el.innerHTML='<div class="stop-time">'+(time||'')+'</div><div class="stop-name">'+name+'</div>';
+    el.innerHTML='<div class="stop-time">'+(t||'')+'</div><div class="stop-name">'+name+'</div>';
   }
-  _enhanceNew(el,date,name);
-  return el;
+  _enhanceStop(el,date,name); return el;
 }
 function _findItemEl(card,name){
   var els=card.querySelectorAll('.stop-name');
   for(var i=0;i<els.length;i++){
     var el=els[i],n=(el.querySelector('a')||el).textContent.trim();
-    if(n===name) return el.closest('[class*="stop-item"],li')||el.parentElement;
+    if(n===name) return el.closest('.stop-item,li')||el.parentElement;
   }
   return null;
 }
 function _allStopItems(card){
-  var items=Array.from(card.querySelectorAll('[class*="stop-item"],li'));
-  if(!items.length){
-    card.querySelectorAll('.stop-name').forEach(function(el){
-      var p=el.closest('li')||el.parentElement;
-      if(p&&p!==card&&items.indexOf(p)<0) items.push(p);
-    });
-  }
-  return items.filter(function(el){return !el.classList.contains('struct-edit-panel')&&!el.querySelector('.struct-edit-panel');});
+  return Array.from(card.querySelectorAll('.stop-item,li.stop-item')).filter(function(el){
+    return !el.classList.contains('struct-edit-panel')&&!el.querySelector('.struct-edit-panel');
+  });
 }
 
-/* ── Actions — optimistic UI ── */
+/* ── Optimistic actions ── */
 window.addStopToDay=function(date,placeId,timeId){
   var inp=document.getElementById(placeId);
   var name=inp?inp.value.trim():'';
   var t=(document.getElementById(timeId)||{}).value||'';
   if(!name){if(inp)inp.focus();return;}
   var card=_cardOf(date);
-  /* 1. DOM immediately */
   var newEl=_makeStopEl(date,name,t);
   if(card){var ep=card.querySelector('.struct-edit-panel');ep?card.insertBefore(newEl,ep):card.appendChild(newEl);}
   if(inp) inp.value='';
   _showInd(card,'💾 Сохраняем...','saving');
-  /* 2. Push in background */
   ghFetch().then(function(x){
     var h=stampHtml(x.html);h=_addStop(h,date,name,t);
     return ghPush(h,x.sha,'add: '+name+(t?' в '+t:'')+' ('+date+')');
@@ -845,17 +851,14 @@ window.addStopToDay=function(date,placeId,timeId){
 window.removeStopFromDay=function(date,name){
   var card=_cardOf(date);
   var item=card?_findItemEl(card,name):null;
-  /* 1. DOM immediately */
   var saved={el:item,parent:item&&item.parentElement,next:item&&item.nextSibling};
   if(item){item.style.transition='opacity .15s';item.style.opacity='0';setTimeout(function(){if(item.parentElement)item.parentElement.removeChild(item);},150);}
   _showInd(card,'💾 Сохраняем...','saving');
-  /* 2. Push in background */
   ghFetch().then(function(x){
     var h=stampHtml(x.html);h=_removeStop(h,date,name);
     return ghPush(h,x.sha,'remove: '+name+' ('+date+')');
   }).then(function(){_showInd(card,'✅ Удалено','saved');})
   .catch(function(e){
-    /* rollback */
     if(saved.el){saved.el.style.opacity='1';if(saved.parent){if(saved.next&&saved.next.parentElement===saved.parent)saved.parent.insertBefore(saved.el,saved.next);else saved.parent.appendChild(saved.el);}}
     _showInd(card,'❌ '+e.message,'error');
   });
@@ -864,11 +867,9 @@ window.clearDayStops=function(date){
   if(!confirm('Очистить весь день?')) return;
   var card=_cardOf(date);
   var items=card?_allStopItems(card):[];
-  /* 1. DOM immediately */
   var saved=items.map(function(el){return{el:el,parent:el.parentElement,next:el.nextSibling};});
   items.forEach(function(el){el.style.transition='opacity .15s';el.style.opacity='0';setTimeout(function(){if(el.parentElement)el.parentElement.removeChild(el);},150);});
   _showInd(card,'💾 Сохраняем...','saving');
-  /* 2. Push in background */
   ghFetch().then(function(x){
     var h=stampHtml(x.html);h=_clearDay(h,date);
     return ghPush(h,x.sha,'clear: '+date);
@@ -879,30 +880,84 @@ window.clearDayStops=function(date){
   });
 };
 
+/* ── Fix nesting: move any [data-date] nested inside another to be siblings ── */
+function fixNesting(){
+  var allCards=Array.from(document.querySelectorAll('[data-date]'));
+  allCards.forEach(function(card){
+    var nested=Array.from(card.querySelectorAll('[data-date]'));
+    nested.forEach(function(child){
+      card.parentNode.insertBefore(child, card.nextSibling);
+    });
+  });
+}
+
+/* ── Build day tab bar ── */
+function buildTabs(){
+  if(document.getElementById('day-tab-bar')) return;
+  var cards=Array.from(document.querySelectorAll('[data-date]'));
+  if(!cards.length) return;
+
+  var bar=document.createElement('div');
+  bar.id='day-tab-bar';
+
+  var tabs=[];
+  cards.forEach(function(card,i){
+    var tab=document.createElement('button');
+    tab.className='day-tab'+(i===0?' active':'');
+    tab.textContent='Д'+(i+1);
+    tab.onclick=function(){
+      tabs.forEach(function(t){t.classList.remove('active');});
+      cards.forEach(function(c){c.style.display='none';});
+      tab.classList.add('active');
+      card.style.display='';
+      card.scrollIntoView({behavior:'smooth',block:'nearest'});
+    };
+    bar.appendChild(tab);
+    tabs.push(tab);
+    if(i>0) card.style.display='none';
+  });
+
+  /* Insert tab bar before the first day card */
+  var firstCard=cards[0];
+  firstCard.parentNode.insertBefore(bar, firstCard);
+}
+
+/* ── Enhance stops + inject edit panels ── */
 function enhanceUI(){
+  /* Fix nesting first */
+  fixNesting();
+
   document.querySelectorAll('[data-date]').forEach(function(card){
     var date=card.dataset.date;
     if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+
+    /* Enhance existing stop-names */
     card.querySelectorAll('.stop-name').forEach(function(el){
       if(el.dataset.enh) return;
       el.dataset.enh='1';
       var name=el.textContent.trim();
       if(!name) return;
-      var delBtn=document.createElement('button');
-      delBtn.className='stop-del-btn';
-      delBtn.title='Удалить';
-      delBtn.innerHTML='&times;';
-      delBtn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
+      var btn=document.createElement('button');
+      btn.className='stop-del-btn'; btn.title='Удалить'; btn.innerHTML='&times;';
+      btn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
       var a=document.createElement('a');
       a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
-      a.target='_blank';
-      a.rel='noopener noreferrer';
-      a.className='sn-link';
-      a.textContent=name;
-      el.textContent='';
-      el.appendChild(delBtn);
-      el.appendChild(a);
+      a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
+      el.textContent=''; el.appendChild(btn); el.appendChild(a);
     });
+
+    /* Hide redundant corner buttons */
+    card.querySelectorAll('button').forEach(function(btn){
+      var cls=btn.className||'';
+      if(cls.indexOf('struct-')<0&&cls.indexOf('stop-del')<0&&cls.indexOf('refresh-btn')<0&&cls.indexOf('day-tab')<0){
+        var firstStop=card.querySelector('.stop-item,li.stop-item');
+        if(!firstStop||btn.compareDocumentPosition(firstStop)&Node.DOCUMENT_POSITION_FOLLOWING){
+          btn.style.setProperty('display','none','important');
+        }
+      }
+    });
+
+    /* Add edit panel if not present */
     if(card.querySelector('.struct-edit-panel')) return;
     var suf=date.replace(/-/g,'');
     var panel=document.createElement('div');
@@ -913,42 +968,21 @@ function enhanceUI(){
         '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
         '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\',\'stime-'+suf+'\')">+ Добавить</button>'+
       '</div>'+
-      '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить весь день</button>';
+      '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить день</button>';
     panel.addEventListener('keydown',function(e){
       if(e.key==='Enter'&&e.target.classList.contains('struct-place-in'))
         addStopToDay(date,'splace-'+suf,'stime-'+suf);
     });
     card.appendChild(panel);
   });
+
+  /* Build tabs after enhancing all cards */
+  buildTabs();
 }
+
 if(document.readyState==='loading')
   document.addEventListener('DOMContentLoaded',enhanceUI);
 else enhanceUI();
-})();
-</script>
-<script id="hide-corner-btn">
-(function(){
-  function hideCornerBtns(){
-    document.querySelectorAll('[data-date]').forEach(function(card){
-      // Find all buttons in the card that are NOT our own buttons
-      card.querySelectorAll('button').forEach(function(btn){
-        var cls = btn.className || '';
-        var isOurs = cls.indexOf('struct-') >= 0 ||
-                     cls.indexOf('stop-del') >= 0 ||
-                     cls.indexOf('refresh-btn') >= 0;
-        if(!isOurs){
-          // Check if it's in the header area (before any stop-item)
-          var firstStop = card.querySelector('.stop-item, li.stop-item');
-          if(!firstStop || btn.compareDocumentPosition(firstStop) & Node.DOCUMENT_POSITION_FOLLOWING){
-            btn.style.setProperty('display','none','important');
-          }
-        }
-      });
-    });
-  }
-  if(document.readyState==='loading')
-    document.addEventListener('DOMContentLoaded', hideCornerBtns);
-  else hideCornerBtns();
 })();
 </script>
 </body>
