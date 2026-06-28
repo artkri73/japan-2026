@@ -266,7 +266,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
       <button class="edit-btn" onclick="openEdit('2026-10-03',8)">✎</button>
       <div class="day-num">День 8 · 3 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"></div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">—</div><div class="stop-content"><div class="stop-name">תוסיף ביום זה ביקור בסופר</div></div></div></div>
     </div>
 
     <div class="day-card" data-date="2026-10-04">
@@ -455,7 +455,7 @@ async function sendCmd() {
     let html = decodeURIComponent(escape(atob(gd.content.replace(/\n/g, ''))));
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const now = new Date().toISOString().slice(0, 19);
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "' + now + '";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T09:00:12";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
