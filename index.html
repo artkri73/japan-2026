@@ -361,7 +361,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 14:48</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 14:57</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -673,7 +673,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T14:48:08";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T14:57:29";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -891,7 +891,7 @@ function fixNesting(){
   });
 }
 
-/* ── Build day tab bar ── */
+/* ── Build day tab bar — scroll-to nav, all days visible ── */
 function buildTabs(){
   if(document.getElementById('day-tab-bar')) return;
   var cards=Array.from(document.querySelectorAll('[data-date]'));
@@ -900,21 +900,31 @@ function buildTabs(){
   var bar=document.createElement('div');
   bar.id='day-tab-bar';
 
+  /* IntersectionObserver to highlight tab of day in viewport */
   var tabs=[];
+  var obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(e.isIntersecting){
+        var idx=cards.indexOf(e.target);
+        if(idx>=0){
+          tabs.forEach(function(t){t.classList.remove('active');});
+          if(tabs[idx]) tabs[idx].classList.add('active');
+        }
+      }
+    });
+  },{threshold:0.4});
+
   cards.forEach(function(card,i){
     var tab=document.createElement('button');
     tab.className='day-tab'+(i===0?' active':'');
     tab.textContent='Д'+(i+1);
     tab.onclick=function(){
-      tabs.forEach(function(t){t.classList.remove('active');});
-      cards.forEach(function(c){c.style.display='none';});
-      tab.classList.add('active');
-      card.style.display='';
-      card.scrollIntoView({behavior:'smooth',block:'nearest'});
+      card.scrollIntoView({behavior:'smooth',block:'start'});
     };
     bar.appendChild(tab);
     tabs.push(tab);
-    if(i>0) card.style.display='none';
+    card.style.display='';   /* ensure all days visible */
+    obs.observe(card);
   });
 
   /* Insert tab bar before the first day card */
