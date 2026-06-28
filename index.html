@@ -443,8 +443,8 @@ async function sendCmd() {
 }
 
 async function pollUntilDone(token, attempts) {
-  if (attempts > 12) { showStatus('⏱ Превышено время ожидания'); return; }
-  await new Promise(r => setTimeout(r, 5000));
+  if (attempts > 25) { showStatus('⏱ Превышено время ожидания'); return; }
+  await new Promise(r => setTimeout(r, 2000));
   try {
     const r = await fetch(GH_API + 'pending_edit.json?t=' + Date.now(), {
       headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' }
@@ -453,7 +453,7 @@ async function pollUntilDone(token, attempts) {
     const pe = JSON.parse(atob(d.content));
     if (pe.done) {
       showStatus('✅ Обновлено! Перезагрузка...');
-      setTimeout(() => location.reload(), 1500);
+      setTimeout(() => { window.location.href = window.location.pathname + '?v=' + Date.now(); }, 1500);
     } else {
       pollUntilDone(token, attempts + 1);
     }
