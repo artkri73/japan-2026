@@ -316,6 +316,82 @@ main, article, section { background: transparent !important; }
 [data-date] .btn-edit, [data-date] [class*="edit-btn"],
 [data-date] [class*="day-btn"], [data-date] .share-btn { display: none !important; }
 
+
+/* ── Fix: советы/tips blocks — no stop-item border ── */
+[data-date] .tips-block,
+[data-date] .day-tips,
+[data-date] [class*="tip"],
+[data-date] [class*="советы"],
+[data-date] .советы {
+  border-left: none !important;
+  background: rgba(37,99,235,.04) !important;
+  border: 1px solid rgba(37,99,235,.15) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  margin-bottom: 10px !important;
+}
+
+/* Hotel field */
+.hotel-row {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 4px 0 10px !important;
+  min-height: 28px !important;
+}
+.hotel-link {
+  font-size: 13px !important;
+  color: #2563eb !important;
+  text-decoration: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  border-bottom: 1px dashed rgba(37,99,235,.4) !important;
+  cursor: pointer !important;
+}
+.hotel-link:hover { border-bottom-color: #2563eb !important; }
+.hotel-input-wrap {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex: 1 !important;
+}
+.hotel-inp {
+  font-size: 13px !important;
+  border: 1px solid rgba(0,0,0,.15) !important;
+  border-radius: 8px !important;
+  padding: 4px 8px !important;
+  flex: 1 !important;
+  color: #111827 !important;
+  background: #fff !important;
+  min-width: 0 !important;
+}
+.hotel-inp:focus {
+  outline: none !important;
+  border-color: #2563eb !important;
+}
+.hotel-save-btn {
+  font-size: 12px !important;
+  background: #2563eb !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 7px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+.hotel-add-btn {
+  font-size: 12px !important;
+  background: none !important;
+  border: 1px dashed rgba(37,99,235,.4) !important;
+  color: #2563eb !important;
+  border-radius: 7px !important;
+  padding: 3px 8px !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+}
+.hotel-add-btn:hover { background: rgba(37,99,235,.06) !important; }
+
 </style>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f5f0e8%22/%3E%0A%20%20%3Cpath%20d%3D%22M3%2015%20Q3%2011%207%2011%20L25%2011%20Q29%2011%2029%2015%20L29%2021%20Q29%2023%2027%2023%20L5%2023%20Q3%2023%203%2021Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L19%205%20Q24%205%2025%2011Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M17%205%20Q23%206%2025%2011%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L17%205%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%3C/svg%3E">
 </head>
@@ -329,7 +405,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 15:08</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 15:23</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -641,7 +717,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T15:08:02";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T15:23:37";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -960,6 +1036,170 @@ function enhanceUI(){
 if(document.readyState==='loading')
   document.addEventListener('DOMContentLoaded',enhanceUI);
 else enhanceUI();
+})();
+</script>
+<script id="hotel-js">
+(function(){
+var REPO='artkri73/japan-2026';
+var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
+
+function ghFetch(){
+  var tok=localStorage.getItem('gh_token');
+  if(!tok){alert('Нет GitHub token');return Promise.reject('no token');}
+  return fetch(APIURL+'?t='+Date.now(),
+    {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){return{html:decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))),sha:d.sha};});
+}
+function ghPush(html,sha,msg){
+  var tok=localStorage.getItem('gh_token');
+  var b64=btoa(unescape(encodeURIComponent(html)));
+  return fetch(APIURL,{method:'PUT',
+    headers:{Authorization:'token '+tok,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+    body:JSON.stringify({message:msg,content:b64,sha:sha,branch:'main'})
+  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+
+/* Save hotel name to data-hotel attribute in HTML */
+function saveHotel(date, hotelName) {
+  var card = document.querySelector('[data-date="'+date+'"]');
+  ghFetch().then(function(x){
+    var h = x.html;
+    /* Update or add data-hotel attribute on the day card */
+    var re = new RegExp('(<[^>]*data-date="'+date+'"[^>]*?)( data-hotel="[^"]*")?([^>]*>)');
+    if(re.test(h)){
+      h = h.replace(re, function(m, p1, p2, p3){
+        return p1 + ' data-hotel="'+hotelName.replace(/"/g,'&quot;')+'"' + p3;
+      });
+    }
+    return ghPush(h, x.sha, 'hotel: '+hotelName+' ('+date+')');
+  }).then(function(){
+    renderHotel(card, date, hotelName);
+    var ind = card.querySelector('.save-ind');
+    if(ind){ind.className='save-ind saved';ind.textContent='✅ Отель сохранён';
+      setTimeout(function(){ind.style.opacity='0';},2000);}
+  }).catch(function(e){
+    alert('Ошибка: '+e.message);
+  });
+}
+
+function renderHotel(card, date, hotelName) {
+  var row = card.querySelector('.hotel-row');
+  if(!row) return;
+  if(hotelName){
+    var url = 'https://www.google.com/maps/search/'+encodeURIComponent(hotelName+' hotel Japan');
+    row.innerHTML =
+      '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
+      '<a class="hotel-link" href="'+url+'" target="_blank" rel="noopener">'+hotelName+'</a>'+
+      '<button class="hotel-add-btn" onclick="editHotel(\''+date+'\',\''+hotelName.replace(/'/g,"\\'")+'\')" style="margin-left:auto;font-size:11px;">✏️</button>';
+  } else {
+    row.innerHTML =
+      '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
+      '<button class="hotel-add-btn" onclick="editHotel(\''+date+'\',\'\')">+ Добавить отель</button>';
+  }
+}
+
+window.editHotel = function(date, current) {
+  var card = document.querySelector('[data-date="'+date+'"]');
+  var row = card ? card.querySelector('.hotel-row') : null;
+  if(!row) return;
+  row.innerHTML =
+    '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
+    '<div class="hotel-input-wrap">'+
+      '<input class="hotel-inp" id="hinp-'+date+'" placeholder="Название отеля..." value="'+current+'">'+
+      '<button class="hotel-save-btn" onclick="confirmHotel(\''+date+'\')">Сохранить</button>'+
+      '<button class="hotel-add-btn" onclick="cancelHotel(\''+date+'\',\''+current.replace(/'/g,"\\'")+'\')" style="border-color:rgba(0,0,0,.15);color:#6b7280;">✕</button>'+
+    '</div>';
+  var inp = document.getElementById('hinp-'+date);
+  if(inp){inp.focus();inp.select();}
+  inp.addEventListener('keydown', function(e){
+    if(e.key==='Enter') confirmHotel(date);
+    if(e.key==='Escape') cancelHotel(date, current);
+  });
+};
+
+window.confirmHotel = function(date) {
+  var inp = document.getElementById('hinp-'+date);
+  if(!inp) return;
+  var name = inp.value.trim();
+  saveHotel(date, name);
+};
+
+window.cancelHotel = function(date, current) {
+  var card = document.querySelector('[data-date="'+date+'"]');
+  if(card) renderHotel(card, date, current);
+};
+
+/* Move советы/tips block to right below day title */
+function fixTipsPosition(card) {
+  /* Find tips block — any div that has советы/tips title inside but is NOT stop-item */
+  var tips = Array.from(card.querySelectorAll('div,section,aside')).filter(function(el){
+    if(el.dataset.tipsFixed) return false;
+    if(el.closest('.struct-edit-panel')) return false;
+    var txt = (el.textContent||'').toLowerCase();
+    var isTop = el.parentElement === card; /* direct child of card */
+    var hasTipsContent = txt.indexOf('совет') >= 0 || txt.indexOf('tips') >= 0 || txt.indexOf('подсказк') >= 0;
+    var notStopItem = !el.classList.contains('stop-item') && !el.classList.contains('hotel-row');
+    return isTop && hasTipsContent && notStopItem && el.children.length > 0;
+  });
+
+  if(tips.length === 0) return;
+
+  /* Find day title element */
+  var titleEl = card.querySelector('.day-title,.title,h2,h3,strong,[class*="title"]');
+  /* Try to find the hotel-row */
+  var hotelRow = card.querySelector('.hotel-row');
+  var insertAfter = hotelRow || titleEl;
+
+  tips.forEach(function(tip){
+    tip.dataset.tipsFixed = '1';
+    /* Style tip nicely */
+    tip.style.setProperty('border-left', 'none', 'important');
+    tip.style.setProperty('background', 'rgba(37,99,235,.04)', 'important');
+    tip.style.setProperty('border', '1px solid rgba(37,99,235,.12)', 'important');
+    tip.style.setProperty('border-radius', '10px', 'important');
+    tip.style.setProperty('padding', '10px 14px', 'important');
+    tip.style.setProperty('margin-bottom', '10px', 'important');
+    tip.style.setProperty('font-size', '13px', 'important');
+
+    if(insertAfter && insertAfter.parentElement === card){
+      card.insertBefore(tip, insertAfter.nextSibling);
+      insertAfter = tip; /* chain next tip after this one */
+    }
+  });
+}
+
+/* Inject hotel row and fix tips for all day cards */
+function initHotels(){
+  document.querySelectorAll('[data-date]').forEach(function(card){
+    var date = card.dataset.date;
+    if(!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    if(card.querySelector('.hotel-row')) return; /* already done */
+
+    /* Find insertion point: after day title */
+    var titleEl = card.querySelector('.day-title,.title,h2,h3,strong,[class*="title"]');
+
+    /* Create hotel row */
+    var row = document.createElement('div');
+    row.className = 'hotel-row';
+    row.dataset.date = date;
+
+    var hotelName = card.dataset.hotel || '';
+    if(titleEl && titleEl.parentElement === card){
+      card.insertBefore(row, titleEl.nextSibling);
+    } else {
+      card.insertBefore(row, card.firstChild);
+    }
+    renderHotel(card, date, hotelName);
+
+    /* Fix tips position after hotel row is added */
+    fixTipsPosition(card);
+  });
+}
+
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded', initHotels);
+else initHotels();
 })();
 </script>
 </body>
