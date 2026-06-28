@@ -454,7 +454,8 @@ async function sendCmd() {
     const gd = await gr.json();
     let html = decodeURIComponent(escape(atob(gd.content.replace(/\n/g, ''))));
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
-    const now = new Date().toISOString().slice(0, 19);
+    const _d=new Date(),_p=n=>String(n).padStart(2,'0');
+    const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
     html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T09:00:12";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
@@ -466,7 +467,8 @@ async function sendCmd() {
       })
     });
     if (!pr.ok) { const e = await pr.json(); throw new Error(e.message || 'PUT ' + pr.status); }
-    showStatus('✅ Сохранено! Страница обновится через ~30 сек.');
+    showStatus('✅ Сохранено! Обновляем через 35 сек...');
+    setTimeout(() => location.reload(), 35000);
   } catch(e) {
     showStatus('❌ Ошибка: ' + e.message);
   }
