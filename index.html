@@ -527,7 +527,7 @@ main, article, section { background: transparent !important; }
       <button class="edit-btn" onclick="openEdit('2026-10-03',8)">✎</button>
       <div class="day-num">День 8 · 3 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"><div class="stop-item"><div class="stop-time">10:00</div><div class="stop-content"><div class="stop-name">guilt</div></div></div></div>
+      <div class="stops-list"></div>
     </div>
 
     <div class="day-card" data-date="2026-10-04">
@@ -688,7 +688,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T16:00:45";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T16:00:53";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
