@@ -280,7 +280,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
       <button class="edit-btn" onclick="openEdit('2026-10-05',10)">✎</button>
       <div class="day-num">День 10 · 5 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"><div class="stop-item"><div class="stop-time">09:00</div><div class="stop-content"><div class="stop-name">Shinjuku Gyoen</div></div></div></div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">09:00</div><div class="stop-content"><div class="stop-name">Shinjuku Gyoen</div></div></div><div class="stop-item"><div class="stop-time">11:00</div><div class="stop-content"><div class="stop-name">Tokyo Skytree</div></div></div></div>
     </div>
 
     <div class="day-card" data-date="2026-10-06">
@@ -471,7 +471,7 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-06-28T04:35:33.090374"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-06-28T04:36:12.040489"t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
