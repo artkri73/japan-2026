@@ -405,7 +405,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 15:23</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 16:00</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -534,36 +534,7 @@ main, article, section { background: transparent !important; }
       <button class="edit-btn" onclick="openEdit('2026-10-04',9)">✎</button>
       <div class="day-num">День 9 · 4 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list">
-<div class="day-card" data-date="2026-10-05">
-      <button class="edit-btn" onclick="openEdit('2026-10-05',10)">✎</button>
-      <div class="day-num">День 10 · 5 окт</div>
-      <div class="day-title">Токио — свободный день</div>
       <div class="stops-list"></div>
-    </div>
-
-    <div class="day-card" data-date="2026-10-06">
-      <button class="edit-btn" onclick="openEdit('2026-10-06',11)">✎</button>
-      <div class="day-num">День 11 · 6 окт</div>
-      <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"></div>
-    </div>
-
-    <div class="day-card" data-date="2026-10-07">
-      <button class="edit-btn" onclick="openEdit('2026-10-07',12)">✎</button>
-      <div class="day-num">День 12 · 7 окт</div>
-      <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"></div>
-    </div>
-
-    <div class="day-card" data-date="2026-10-08">
-      <button class="edit-btn" onclick="openEdit('2026-10-08',13)">✎</button>
-      <div class="day-num">День 13 · 8 окт</div>
-      <div class="day-title">Вылет домой</div>
-      <div class="stops-list"></div>
-    </div>
-
-    </div>
     <div class="city-tips"><div class="tips-title">Советы по Токио</div><ul class="tips-list"><li>Suica или Pasmo IC-карта — для всего метро</li><li>Ginza Line: Asakusa→Ueno→Ginza→Shibuya</li><li>Вылет 8 октября — выезжать из центра не позднее 18:00</li></ul></div>
   </div>
 </div>
@@ -717,7 +688,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T15:23:37";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T16:00:22";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
