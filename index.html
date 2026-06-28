@@ -140,13 +140,13 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 .stop-name a:hover{text-decoration-color:#5599ff;color:#99bbff}
 
 
-/* ── Japan-2026 Fresh Design v2 ── */
+
+/* ── Japan-2026 Fresh Design v3 ── */
 :root {
-  --jbg: #f0f2f8;
   --jcard: #ffffff;
   --jstop: #f7f8fc;
   --jbord: rgba(0,0,0,.09);
-  --jbord2: rgba(0,0,0,.16);
+  --jbord2: rgba(0,0,0,.18);
   --jtext: #111827;
   --jtext2: #6b7280;
   --jtext3: #9ca3af;
@@ -158,36 +158,54 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --jbg: #0f1020;
     --jcard: #181b2e;
     --jstop: #1e2236;
-    --jbord: rgba(255,255,255,.13);
+    --jbord: rgba(255,255,255,.12);
     --jbord2: rgba(255,255,255,.22);
     --jtext: #e2e8f0;
     --jtext2: #94a3b8;
-    --jtext3: #4b5870;
+    --jtext3: #4a5568;
     --jacc: #60a5fa;
-    --jaccbg: rgba(96,165,250,.12);
+    --jaccbg: rgba(96,165,250,.13);
     --jred: #f87171;
     --jredbg: rgba(248,113,113,.09);
   }
 }
 
-/* Stop items — card look WITHOUT overriding layout */
+/* ── Stop items: card with left accent line ── */
 [data-date] .stop-item,
 [data-date] li.stop-item {
   background: var(--jstop) !important;
   border: 1px solid var(--jbord) !important;
+  border-left: 3px solid var(--jacc) !important;
   border-radius: var(--jr) !important;
   margin-bottom: 6px !important;
   transition: border-color .15s !important;
+  overflow: hidden !important;
 }
 [data-date] .stop-item:hover,
 [data-date] li.stop-item:hover {
   border-color: var(--jbord2) !important;
+  border-left-color: var(--jacc) !important;
 }
 
-/* Refresh button */
+/* ── Hide the top-right edit/icon button on day cards ── */
+[data-date] > .day-actions,
+[data-date] > .card-actions,
+[data-date] .day-header button:not(.struct-add-btn):not(.struct-clear-btn):not(.stop-del-btn):not(.refresh-btn),
+[data-date] > button:not(.struct-add-btn):not(.struct-clear-btn):not(.stop-del-btn):not(.refresh-btn),
+[data-date] .icon-btn,
+[data-date] .edit-day-btn,
+[data-date] .day-edit-btn,
+[data-date] .btn-edit,
+[data-date] [class*="edit-btn"],
+[data-date] [class*="day-btn"],
+[data-date] .share-btn,
+[data-date] .options-btn {
+  display: none !important;
+}
+
+/* ── Refresh button ── */
 .refresh-btn {
   background: none !important;
   border: 1px solid var(--jbord2) !important;
@@ -202,21 +220,21 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 }
 .refresh-btn:hover { border-color: var(--jacc) !important; color: var(--jacc) !important; }
 
-/* Delete button */
+/* ── Delete button ── */
 .stop-del-btn {
   background: none !important;
   border: none !important;
   color: var(--jtext3) !important;
   cursor: pointer;
   padding: 0 4px;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1;
   transition: color .15s;
   flex-shrink: 0;
 }
 .stop-del-btn:hover { color: var(--jred) !important; }
 
-/* Maps link */
+/* ── Maps link ── */
 .stop-name a.sn-link {
   color: inherit !important;
   text-decoration: none !important;
@@ -225,39 +243,53 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 }
 .stop-name a.sn-link:hover {
   color: var(--jacc) !important;
-  border-bottom-color: var(--jacc);
+  border-bottom-color: var(--jacc) !important;
 }
 
-/* Struct edit panel */
+/* ── Struct edit panel — FIX OVERFLOW ── */
 .struct-edit-panel {
   border-top: 1px solid var(--jbord) !important;
   margin-top: 12px !important;
-  padding: 12px 0 4px !important;
+  padding: 12px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  overflow: hidden !important;
 }
 .struct-add-form {
   display: flex !important;
-  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
   align-items: center !important;
   margin-bottom: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 .struct-time-in {
-  width: 88px !important;
+  width: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  flex-shrink: 0 !important;
   background: var(--jcard) !important;
   border: 1px solid var(--jbord2) !important;
   border-radius: var(--jr) !important;
-  padding: 7px 8px !important;
+  padding: 7px 6px !important;
   font-size: 13px !important;
   color: var(--jtext) !important;
   color-scheme: light dark;
+  box-sizing: border-box !important;
 }
 .struct-place-in {
-  flex: 1 !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: 0 !important;
   background: var(--jcard) !important;
   border: 1px solid var(--jbord2) !important;
   border-radius: var(--jr) !important;
   padding: 7px 10px !important;
   font-size: 13px !important;
   color: var(--jtext) !important;
+  box-sizing: border-box !important;
 }
 .struct-place-in::placeholder { color: var(--jtext3); }
 .struct-time-in:focus, .struct-place-in:focus {
@@ -266,18 +298,21 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
   box-shadow: 0 0 0 3px var(--jaccbg) !important;
 }
 .struct-add-btn {
+  flex-shrink: 0 !important;
   background: var(--jacc) !important;
   border: none !important;
   border-radius: var(--jr) !important;
-  padding: 7px 14px !important;
+  padding: 7px 12px !important;
   font-size: 13px !important;
   color: #fff !important;
   cursor: pointer;
   white-space: nowrap;
   transition: opacity .15s;
+  box-sizing: border-box !important;
 }
 .struct-add-btn:hover { opacity: .85; }
 .struct-clear-btn {
+  display: block !important;
   width: 100% !important;
   background: none !important;
   border: 1px solid var(--jbord) !important;
@@ -287,11 +322,12 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
   color: var(--jred) !important;
   cursor: pointer;
   transition: background .15s;
+  box-sizing: border-box !important;
 }
 .struct-clear-btn:hover { background: var(--jredbg) !important; }
 
-/* Save indicator */
-.save-ind { display: block; font-size: 11px; padding: 3px 0 1px; transition: opacity .4s; min-height: 16px; }
+/* ── Save indicator ── */
+.save-ind { display: block; font-size: 11px; padding: 3px 0 2px; transition: opacity .4s; min-height: 16px; }
 .save-ind.saving { color: var(--jtext2); }
 .save-ind.saved  { color: #22c55e; }
 .save-ind.error  { color: var(--jred); }
@@ -309,7 +345,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:40</div>
+  <div class="updated" id="updated-line">Обновлено: 28.06.2026 в 13:49</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -621,7 +657,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:40:39";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T13:49:06";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -888,6 +924,31 @@ function enhanceUI(){
 if(document.readyState==='loading')
   document.addEventListener('DOMContentLoaded',enhanceUI);
 else enhanceUI();
+})();
+</script>
+<script id="hide-corner-btn">
+(function(){
+  function hideCornerBtns(){
+    document.querySelectorAll('[data-date]').forEach(function(card){
+      // Find all buttons in the card that are NOT our own buttons
+      card.querySelectorAll('button').forEach(function(btn){
+        var cls = btn.className || '';
+        var isOurs = cls.indexOf('struct-') >= 0 ||
+                     cls.indexOf('stop-del') >= 0 ||
+                     cls.indexOf('refresh-btn') >= 0;
+        if(!isOurs){
+          // Check if it's in the header area (before any stop-item)
+          var firstStop = card.querySelector('.stop-item, li.stop-item');
+          if(!firstStop || btn.compareDocumentPosition(firstStop) & Node.DOCUMENT_POSITION_FOLLOWING){
+            btn.style.setProperty('display','none','important');
+          }
+        }
+      });
+    });
+  }
+  if(document.readyState==='loading')
+    document.addEventListener('DOMContentLoaded', hideCornerBtns);
+  else hideCornerBtns();
 })();
 </script>
 </body>
