@@ -441,7 +441,7 @@ async function sendCmd() {
   const token = localStorage.getItem('gh_token');
   if (!token) { openSettings(); return; }
   closeCmd();
-  const isClear = /נקה|ניקוי|очисти|очистить|удали|убери|clear|delete|remove/i.test(msg);
+  const isClear = /נקה|ניקוי|מחוק|מחק|תמחק|להסיר|הסר|פנה|תפנה|ריק|очисти|очистить|удали|убери|сотри|очисть|clear|delete|remove/i.test(msg);
   const timeM = msg.match(/\b(\d{1,2}:\d{2})\b/);
   const timeStr = timeM ? timeM[1] : null;
   const place = isClear ? null : msg.replace(/\b\d{1,2}:\d{2}\b/, '').trim().replace(/^[\s,;:-]+|[\s,;:-]+$/g, '');
@@ -456,7 +456,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T09:00:12";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-06-28T12:17:59";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -467,7 +467,10 @@ async function sendCmd() {
       })
     });
     if (!pr.ok) { const e = await pr.json(); throw new Error(e.message || 'PUT ' + pr.status); }
-    showStatus('✅ Сохранено! Обновляем через 35 сек...');
+    const actionMsg = isClear
+      ? '✅ День ' + currentDay + ' очищен! Обновляем через 35 сек...'
+      : '✅ Добавлено: "' + (place||'') + '"' + (timeStr ? ' в ' + timeStr : '') + ' (день ' + currentDay + '). Обновляем через 35 сек...';
+    showStatus(actionMsg);
     setTimeout(() => location.reload(), 35000);
   } catch(e) {
     showStatus('❌ Ошибка: ' + e.message);
