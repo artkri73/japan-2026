@@ -482,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:30</div>
+  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:38</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -786,7 +786,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:30:56";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:38:17";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1284,7 +1284,7 @@ else runAll();
 (function () {
 'use strict';
 
-/* ── base64 UTF-8 encode ── */
+/* ── UTF-8 → base64 ── */
 function toB64(s) {
   var enc = new TextEncoder().encode(s);
   var bin = '';
@@ -1292,13 +1292,13 @@ function toB64(s) {
   return btoa(bin);
 }
 
-/* ── escape for RegExp ── */
+/* ── regex escape ── */
 function escRe(s) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/* ── save one field to GitHub ── */
-async function saveField(fieldType, date, oldText, newText) {
+/* ── save field to GitHub ── */
+async function saveField(fieldType, key, oldText, newText) {
   var token = localStorage.getItem('gh_token');
   if (!token) { alert('Введите GitHub Token в ⚙️ Настройки'); return false; }
   try {
@@ -1306,68 +1306,58 @@ async function saveField(fieldType, date, oldText, newText) {
       'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
       { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } }
     );
-    if (!resp.ok) throw new Error('GitHub API ' + resp.status);
+    if (!resp.ok) throw new Error('GitHub ' + resp.status);
     var info = await resp.json();
     var sha  = info.sha;
     var raw  = atob(info.content.replace(/\n/g, ''));
     var buf  = new Uint8Array(raw.length);
     for (var i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
     var src  = new TextDecoder('utf-8').decode(buf);
-
     var patched;
+
     if (fieldType === 'day-title') {
       var re = new RegExp(
-        '(data-date="' + date + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
+        '(data-date="' + key + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
       );
-      patched = src.replace(re, function (m, p1, p2, p3) { return p1 + newText + p3; });
+      patched = src.replace(re, function(m,p1,p2,p3){ return p1 + newText + p3; });
+    } else if (fieldType === 'city-name') {
+      /* key = city class like "city-osaka" */
+      var re2 = new RegExp(
+        '(class="city-header ' + key + '".*?<div class="city-info">.*?<div>)([^<]*)(</div>)', 'ms'
+      );
+      patched = src.replace(re2, function(m,p1,p2,p3){ return p1 + newText + p3; });
     } else {
       var esc = escRe(oldText);
-      var re2 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
-      patched = src.replace(re2, function (m, p1, p2) { return p1 + newText + p2; });
+      var re3 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
+      patched = src.replace(re3, function(m,p1,p2){ return p1 + newText + p2; });
     }
 
     if (patched === src) {
-      console.warn('[p4] Text not found for replacement:', fieldType, JSON.stringify(oldText));
+      console.warn('[p5] not found:', fieldType, JSON.stringify(oldText));
       return false;
     }
-
     var pr = await fetch(
       'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
       {
         method: 'PUT',
-        headers: {
-          Authorization: 'token ' + token,
-          'Content-Type': 'application/json',
-          Accept: 'application/vnd.github.v3+json'
-        },
-        body: JSON.stringify({
-          message: 'edit: ' + fieldType + ' ' + date,
-          content: toB64(patched),
-          sha: sha,
-          branch: 'main'
-        })
+        headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json',
+                   Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: 'edit: ' + fieldType + ' ' + key,
+                               content: toB64(patched), sha: sha, branch: 'main' })
       }
     );
     return pr.ok;
-  } catch (e) {
-    console.error('[p4] saveField:', e);
-    alert('Ошибка сохранения: ' + e.message);
+  } catch(e) {
+    console.error('[p5]', e);
+    alert('Ошибка: ' + e.message);
     return false;
   }
 }
 
-/* ── inline edit handler (event delegation) ── */
-document.addEventListener('dblclick', function (ev) {
-  var el = ev.target.closest('.day-title, .stop-desc, .stop-transport');
-  if (!el || el.contentEditable === 'true') return;
-  var card = el.closest('[data-date]');
-  if (!card) return;
-  var date = card.getAttribute('data-date');
-  var ft   = el.classList.contains('day-title') ? 'day-title'
-           : el.classList.contains('stop-desc')  ? 'stop-desc'
-           : 'stop-transport';
+/* ── generic inline edit helper ── */
+function startEdit(el, onSave) {
+  if (el.contentEditable === 'true') return;
   var orig = el.textContent.trim();
-
   el.contentEditable = 'true';
   el.focus();
   var rng = document.createRange();
@@ -1376,120 +1366,158 @@ document.addEventListener('dblclick', function (ev) {
   sel.removeAllRanges();
   sel.addRange(rng);
 
-  var committed = false;
+  var done = false;
   async function commit() {
-    if (committed) return;
-    committed = true;
+    if (done) return; done = true;
     el.contentEditable = 'false';
     var nv = el.textContent.trim();
     if (!nv || nv === orig) { el.textContent = orig; return; }
     el.style.opacity = '0.5';
-    var ok = await saveField(ft, date, orig, nv);
+    var ok = await onSave(orig, nv);
     el.style.opacity = '';
     if (ok) {
       el.style.outline = '2px solid #4CAF50';
-      setTimeout(function () { el.style.outline = ''; }, 1500);
-    } else {
-      el.textContent = orig;
-    }
+      setTimeout(function(){ el.style.outline = ''; }, 1500);
+    } else { el.textContent = orig; }
   }
-
   el.addEventListener('blur', commit, { once: true });
   el.addEventListener('keydown', function kh(e) {
     if (e.key === 'Enter')  { e.preventDefault(); el.blur(); }
-    if (e.key === 'Escape') {
-      committed = true;
-      el.contentEditable = 'false';
-      el.textContent = orig;
-      el.removeEventListener('keydown', kh);
-    }
+    if (e.key === 'Escape') { done = true; el.contentEditable = 'false'; el.textContent = orig;
+                              el.removeEventListener('keydown', kh); }
   });
+}
+
+/* ── dblclick handler — day fields ── */
+document.addEventListener('dblclick', function(ev) {
+  var el = ev.target.closest('.day-title, .stop-desc, .stop-transport');
+  if (!el || el.contentEditable === 'true') return;
+  var card = el.closest('[data-date]');
+  if (!card) return;
+  var date = card.getAttribute('data-date');
+  var ft   = el.classList.contains('day-title') ? 'day-title'
+           : el.classList.contains('stop-desc')  ? 'stop-desc' : 'stop-transport';
+  startEdit(el, function(orig, nv){ return saveField(ft, date, orig, nv); });
 });
 
-/* ── temperature display ── */
+/* ── dblclick handler — city name ── */
+document.addEventListener('dblclick', function(ev) {
+  /* city-hdr structure: .city-hdr > div.city-hdr-icon + div > div(name) + div(dates) */
+  var cityHdr = ev.target.closest('.city-hdr');
+  if (!cityHdr) return;
+  /* Find the name-div: second child of cityHdr → first child of that */
+  var wrap    = cityHdr.children[1];
+  if (!wrap) return;
+  var nameEl  = wrap.children[0];
+  if (!nameEl || !nameEl.contains(ev.target)) return;
+  if (nameEl.contentEditable === 'true') return;
+
+  /* Find city class from hidden .city-header sibling */
+  var block      = cityHdr.closest('.city-block');
+  var hiddenHdr  = block && block.querySelector('.city-header');
+  var cityClass  = hiddenHdr && Array.from(hiddenHdr.classList)
+                     .find(function(c){ return c.startsWith('city-') && c !== 'city-header'; });
+  if (!cityClass) return;
+
+  startEdit(nameEl, function(orig, nv){ return saveField('city-name', cityClass, orig, nv); });
+});
+
+/* ── WMO weathercode → emoji ── */
+var WMO_EMOJI = {
+   0:'☀️',  1:'🌤️',  2:'⛅',  3:'☁️',
+  45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌦️', 56:'🌦️', 57:'🌦️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️', 66:'🌧️', 67:'🌧️',
+  71:'❄️',  73:'❄️',  75:'❄️',  77:'❄️',
+  80:'🌧️', 81:'🌧️', 82:'🌧️',
+  85:'❄️',  86:'❄️',
+  95:'⛈️', 96:'⛈️', 99:'⛈️'
+};
+function wmoEmoji(code) { return WMO_EMOJI[code] || ''; }
+
+/* ── temperature + weather ── */
 var COORDS = {
-  '2026-09-26': [34.6937, 135.5022], '2026-09-27': [34.6937, 135.5022],
-  '2026-09-28': [35.0116, 135.7681], '2026-09-29': [35.0116, 135.7681], '2026-09-30': [35.0116, 135.7681],
-  '2026-10-01': [34.3853, 132.4553], '2026-10-02': [34.3853, 132.4553],
-  '2026-10-03': [35.6762, 139.6503], '2026-10-04': [35.6762, 139.6503],
-  '2026-10-05': [35.6762, 139.6503], '2026-10-06': [35.6762, 139.6503],
-  '2026-10-07': [35.6762, 139.6503], '2026-10-08': [35.6762, 139.6503]
+  '2026-09-26':[34.6937,135.5022],'2026-09-27':[34.6937,135.5022],
+  '2026-09-28':[35.0116,135.7681],'2026-09-29':[35.0116,135.7681],'2026-09-30':[35.0116,135.7681],
+  '2026-10-01':[34.3853,132.4553],'2026-10-02':[34.3853,132.4553],
+  '2026-10-03':[35.6762,139.6503],'2026-10-04':[35.6762,139.6503],
+  '2026-10-05':[35.6762,139.6503],'2026-10-06':[35.6762,139.6503],
+  '2026-10-07':[35.6762,139.6503],'2026-10-08':[35.6762,139.6503]
 };
 
-async function fetchTemps() {
-  /* group dates by city (lat+lon key) */
+async function fetchWeather() {
   var groups = {};
-  Object.keys(COORDS).forEach(function (d) {
-    var ll = COORDS[d];
-    var k  = ll[0] + ',' + ll[1];
-    if (!groups[k]) groups[k] = { lat: ll[0], lon: ll[1], dates: [] };
+  Object.keys(COORDS).forEach(function(d) {
+    var ll = COORDS[d]; var k = ll[0]+','+ll[1];
+    if (!groups[k]) groups[k] = { lat:ll[0], lon:ll[1], dates:[] };
     groups[k].dates.push(d);
   });
 
-  var results   = {};
-  var futureMax = new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10);
+  var results   = {};   /* date → {temp, code} */
+  var futureMax = new Date(Date.now() + 15*86400000).toISOString().slice(0,10);
 
   for (var k in groups) {
-    var g      = groups[k];
+    var g = groups[k];
     var sorted = g.dates.slice().sort();
-    var start  = sorted[0], end = sorted[sorted.length - 1];
-    var arch   = start > futureMax;          /* true → use 2025 archive data */
-    var s      = arch ? start.replace('2026', '2025') : start;
-    var e      = arch ? end.replace('2026', '2025')   : end;
-    var base   = arch
+    var start  = sorted[0], end = sorted[sorted.length-1];
+    var arch   = start > futureMax;
+    var s = arch ? start.replace('2026','2025') : start;
+    var e = arch ? end.replace('2026','2025')   : end;
+    var base = arch
       ? 'https://archive-api.open-meteo.com/v1/archive'
       : 'https://api.open-meteo.com/v1/forecast';
     var url = base +
       '?latitude=' + g.lat + '&longitude=' + g.lon +
-      '&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo' +
-      '&start_date=' + s + '&end_date=' + e;
-
+      '&daily=temperature_2m_max,temperature_2m_min,weathercode' +
+      '&timezone=Asia%2FTokyo&start_date=' + s + '&end_date=' + e;
     try {
       var r = await fetch(url);
       if (!r.ok) continue;
       var data = await r.json();
       if (!data.daily || !data.daily.time) continue;
-      data.daily.time.forEach(function (dt, i) {
-        var tripDate = arch ? dt.replace('2025', '2026') : dt;
+      data.daily.time.forEach(function(dt, i) {
+        var tripDate = arch ? dt.replace('2025','2026') : dt;
         var mx = data.daily.temperature_2m_max[i];
         var mn = data.daily.temperature_2m_min[i];
-        if (mx != null && mn != null) results[tripDate] = Math.round((mx + mn) / 2);
+        var wc = data.daily.weathercode ? data.daily.weathercode[i] : null;
+        if (mx != null && mn != null)
+          results[tripDate] = { temp: Math.round((mx+mn)/2), code: wc };
       });
-    } catch (ex) { console.warn('[p4] temp fetch error:', ex); }
+    } catch(ex) { console.warn('[p5] weather fetch:', ex); }
   }
 
-  /* write temp spans into .day-num */
-  document.querySelectorAll('[data-date]').forEach(function (card) {
-    var d  = card.getAttribute('data-date');
-    if (results[d] == null) return;
+  document.querySelectorAll('[data-date]').forEach(function(card) {
+    var d = card.getAttribute('data-date');
+    var w = results[d];
+    if (!w) return;
     var dn = card.querySelector('.day-num');
     if (!dn) return;
     var sp = dn.querySelector('.day-temp');
-    if (!sp) {
-      sp = document.createElement('span');
-      sp.className = 'day-temp';
-      dn.appendChild(sp);
-    }
-    sp.textContent = ' 🌡️ ' + results[d] + '°C';
-    sp.title = 'Средняя температура (исторические данные 2025)';
+    if (!sp) { sp = document.createElement('span'); sp.className = 'day-temp'; dn.appendChild(sp); }
+    var emoji = wmoEmoji(w.code);
+    sp.textContent = ' 🌡️ ' + w.temp + '°C' + (emoji ? ' ' + emoji : '');
+    sp.title = 'Средняя температура · погода по данным 2025';
   });
 }
 
-fetchTemps();
+fetchWeather();
 
-/* ── inject CSS for editable elements ── */
-(function () {
+/* ── CSS ── */
+(function() {
   if (document.getElementById('p4-edit-sty')) return;
   var s = document.createElement('style');
   s.id = 'p4-edit-sty';
   s.textContent = [
     '.day-title,.stop-desc,.stop-transport{cursor:pointer}',
     '.day-title:hover,.stop-desc:hover,.stop-transport:hover{',
-    '  outline:1px dashed rgba(255,255,255,.45);border-radius:3px;',
-    '  background:rgba(255,255,255,.12)}',
-    '[contenteditable=true]{background:rgba(255,255,255,.93)!important;',
-    '  color:#1a1a1a!important;border-radius:3px;padding:1px 5px;',
-    '  outline:2px solid #4caf50!important;min-width:60px;display:inline-block}',
+    '  outline:1px dashed rgba(255,255,255,.4);border-radius:3px;background:rgba(255,255,255,.12)}',
+    '.city-hdr .city-hdr-name > div:first-child,.city-hdr > div:not(.city-hdr-icon) > div:first-child{cursor:pointer}',
+    '.city-hdr > div:not(.city-hdr-icon) > div:first-child:hover{',
+    '  outline:1px dashed rgba(255,255,255,.5);border-radius:3px;background:rgba(255,255,255,.1);',
+    '  padding:0 4px}',
+    '[contenteditable=true]{background:rgba(255,255,255,.93)!important;color:#1a1a1a!important;',
+    '  border-radius:3px;padding:1px 5px;outline:2px solid #4caf50!important;',
+    '  min-width:60px;display:inline-block}',
     '.day-temp{font-size:.76em;opacity:.85;font-weight:400;margin-left:3px}'
   ].join('');
   document.head.appendChild(s);
