@@ -482,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:03</div>
+  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:25</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -614,6 +614,27 @@ main, article, section { background: transparent !important; }
       <div class="stops-list"></div>
     <div class="city-tips"><div class="tips-title">Советы по Токио</div><ul class="tips-list"><li>Suica или Pasmo IC-карта — для всего метро</li><li>Ginza Line: Asakusa→Ueno→Ginza→Shibuya</li><li>Вылет 8 октября — выезжать из центра не позднее 18:00</li></ul></div>
   </div>
+<div class="day-card" data-date="2026-10-05">
+<div class="day-num">День 10 · 5 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-06">
+<div class="day-num">День 11 · 6 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-07">
+<div class="day-num">День 12 · 7 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-08">
+<div class="day-num">День 13 · 8 окт</div>
+<div class="day-title">Токио — вылет</div>
+<div class="stops-list"></div>
+</div>
+
 </div>
 
 </div><!-- /cities -->
@@ -765,7 +786,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:03:45";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:25:50";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1259,5 +1280,223 @@ else runAll();
 
 })();
 </script>
+<script id="patch4-edit-temp-js">
+(function () {
+'use strict';
+
+/* ── base64 UTF-8 encode ── */
+function toB64(s) {
+  var enc = new TextEncoder().encode(s);
+  var bin = '';
+  for (var i = 0; i < enc.length; i++) bin += String.fromCharCode(enc[i]);
+  return btoa(bin);
+}
+
+/* ── escape for RegExp ── */
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/* ── save one field to GitHub ── */
+async function saveField(fieldType, date, oldText, newText) {
+  var token = localStorage.getItem('gh_token');
+  if (!token) { alert('Введите GitHub Token в ⚙️ Настройки'); return false; }
+  try {
+    var resp = await fetch(
+      'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
+      { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (!resp.ok) throw new Error('GitHub API ' + resp.status);
+    var info = await resp.json();
+    var sha  = info.sha;
+    var raw  = atob(info.content.replace(/\n/g, ''));
+    var buf  = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
+    var src  = new TextDecoder('utf-8').decode(buf);
+
+    var patched;
+    if (fieldType === 'day-title') {
+      var re = new RegExp(
+        '(data-date="' + date + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
+      );
+      patched = src.replace(re, function (m, p1, p2, p3) { return p1 + newText + p3; });
+    } else {
+      var esc = escRe(oldText);
+      var re2 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
+      patched = src.replace(re2, function (m, p1, p2) { return p1 + newText + p2; });
+    }
+
+    if (patched === src) {
+      console.warn('[p4] Text not found for replacement:', fieldType, JSON.stringify(oldText));
+      return false;
+    }
+
+    var pr = await fetch(
+      'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
+      {
+        method: 'PUT',
+        headers: {
+          Authorization: 'token ' + token,
+          'Content-Type': 'application/json',
+          Accept: 'application/vnd.github.v3+json'
+        },
+        body: JSON.stringify({
+          message: 'edit: ' + fieldType + ' ' + date,
+          content: toB64(patched),
+          sha: sha,
+          branch: 'main'
+        })
+      }
+    );
+    return pr.ok;
+  } catch (e) {
+    console.error('[p4] saveField:', e);
+    alert('Ошибка сохранения: ' + e.message);
+    return false;
+  }
+}
+
+/* ── inline edit handler (event delegation) ── */
+document.addEventListener('dblclick', function (ev) {
+  var el = ev.target.closest('.day-title, .stop-desc, .stop-transport');
+  if (!el || el.contentEditable === 'true') return;
+  var card = el.closest('[data-date]');
+  if (!card) return;
+  var date = card.getAttribute('data-date');
+  var ft   = el.classList.contains('day-title') ? 'day-title'
+           : el.classList.contains('stop-desc')  ? 'stop-desc'
+           : 'stop-transport';
+  var orig = el.textContent.trim();
+
+  el.contentEditable = 'true';
+  el.focus();
+  var rng = document.createRange();
+  rng.selectNodeContents(el);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(rng);
+
+  var committed = false;
+  async function commit() {
+    if (committed) return;
+    committed = true;
+    el.contentEditable = 'false';
+    var nv = el.textContent.trim();
+    if (!nv || nv === orig) { el.textContent = orig; return; }
+    el.style.opacity = '0.5';
+    var ok = await saveField(ft, date, orig, nv);
+    el.style.opacity = '';
+    if (ok) {
+      el.style.outline = '2px solid #4CAF50';
+      setTimeout(function () { el.style.outline = ''; }, 1500);
+    } else {
+      el.textContent = orig;
+    }
+  }
+
+  el.addEventListener('blur', commit, { once: true });
+  el.addEventListener('keydown', function kh(e) {
+    if (e.key === 'Enter')  { e.preventDefault(); el.blur(); }
+    if (e.key === 'Escape') {
+      committed = true;
+      el.contentEditable = 'false';
+      el.textContent = orig;
+      el.removeEventListener('keydown', kh);
+    }
+  });
+});
+
+/* ── temperature display ── */
+var COORDS = {
+  '2026-09-26': [34.6937, 135.5022], '2026-09-27': [34.6937, 135.5022],
+  '2026-09-28': [35.0116, 135.7681], '2026-09-29': [35.0116, 135.7681], '2026-09-30': [35.0116, 135.7681],
+  '2026-10-01': [34.3853, 132.4553], '2026-10-02': [34.3853, 132.4553],
+  '2026-10-03': [35.6762, 139.6503], '2026-10-04': [35.6762, 139.6503],
+  '2026-10-05': [35.6762, 139.6503], '2026-10-06': [35.6762, 139.6503],
+  '2026-10-07': [35.6762, 139.6503], '2026-10-08': [35.6762, 139.6503]
+};
+
+async function fetchTemps() {
+  /* group dates by city (lat+lon key) */
+  var groups = {};
+  Object.keys(COORDS).forEach(function (d) {
+    var ll = COORDS[d];
+    var k  = ll[0] + ',' + ll[1];
+    if (!groups[k]) groups[k] = { lat: ll[0], lon: ll[1], dates: [] };
+    groups[k].dates.push(d);
+  });
+
+  var results   = {};
+  var futureMax = new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10);
+
+  for (var k in groups) {
+    var g      = groups[k];
+    var sorted = g.dates.slice().sort();
+    var start  = sorted[0], end = sorted[sorted.length - 1];
+    var arch   = start > futureMax;          /* true → use 2025 archive data */
+    var s      = arch ? start.replace('2026', '2025') : start;
+    var e      = arch ? end.replace('2026', '2025')   : end;
+    var base   = arch
+      ? 'https://archive-api.open-meteo.com/v1/archive'
+      : 'https://api.open-meteo.com/v1/forecast';
+    var url = base +
+      '?latitude=' + g.lat + '&longitude=' + g.lon +
+      '&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FTokyo' +
+      '&start_date=' + s + '&end_date=' + e;
+
+    try {
+      var r = await fetch(url);
+      if (!r.ok) continue;
+      var data = await r.json();
+      if (!data.daily || !data.daily.time) continue;
+      data.daily.time.forEach(function (dt, i) {
+        var tripDate = arch ? dt.replace('2025', '2026') : dt;
+        var mx = data.daily.temperature_2m_max[i];
+        var mn = data.daily.temperature_2m_min[i];
+        if (mx != null && mn != null) results[tripDate] = Math.round((mx + mn) / 2);
+      });
+    } catch (ex) { console.warn('[p4] temp fetch error:', ex); }
+  }
+
+  /* write temp spans into .day-num */
+  document.querySelectorAll('[data-date]').forEach(function (card) {
+    var d  = card.getAttribute('data-date');
+    if (results[d] == null) return;
+    var dn = card.querySelector('.day-num');
+    if (!dn) return;
+    var sp = dn.querySelector('.day-temp');
+    if (!sp) {
+      sp = document.createElement('span');
+      sp.className = 'day-temp';
+      dn.appendChild(sp);
+    }
+    sp.textContent = ' 🌡️ ' + results[d] + '°C';
+    sp.title = 'Средняя температура (исторические данные 2025)';
+  });
+}
+
+fetchTemps();
+
+/* ── inject CSS for editable elements ── */
+(function () {
+  if (document.getElementById('p4-edit-sty')) return;
+  var s = document.createElement('style');
+  s.id = 'p4-edit-sty';
+  s.textContent = [
+    '.day-title,.stop-desc,.stop-transport{cursor:pointer}',
+    '.day-title:hover,.stop-desc:hover,.stop-transport:hover{',
+    '  outline:1px dashed rgba(255,255,255,.45);border-radius:3px;',
+    '  background:rgba(255,255,255,.12)}',
+    '[contenteditable=true]{background:rgba(255,255,255,.93)!important;',
+    '  color:#1a1a1a!important;border-radius:3px;padding:1px 5px;',
+    '  outline:2px solid #4caf50!important;min-width:60px;display:inline-block}',
+    '.day-temp{font-size:.76em;opacity:.85;font-weight:400;margin-left:3px}'
+  ].join('');
+  document.head.appendChild(s);
+})();
+
+})();
+</script>
+
 </body>
 </html>
