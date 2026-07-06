@@ -482,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:38</div>
+  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:41</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -505,7 +505,7 @@ main, article, section { background: transparent !important; }
       <div class="day-num">День 1 · 26 сен</div>
       <div class="day-title">Прибытие в Осаку</div>
       <div class="stops-list">
-</div>
+<div class="stop-item"><div class="stop-time">10:00</div><div class="stop-content"><div class="stop-name">בדיקה</div></div></div></div>
 
     <div class="day-card" data-date="2026-09-27">
       <button class="edit-btn" onclick="openEdit('2026-09-27',2)">✎</button>
@@ -786,7 +786,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:38:17";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:41:21";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
