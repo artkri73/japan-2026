@@ -461,12 +461,15 @@ main, article, section { background: transparent !important; }
   width: auto !important;
   margin-top: 20px !important;
 }
-/* Also ensure city-hdr spans all columns */
+/* Ensure city-hdr (our injected headers) spans all columns */
 .city-hdr {
   grid-column: 1 / -1 !important;
   width: auto !important;
 }
-/* hotel-row should also span inside day-card, not be affected */
+/* Hide original .city-header elements — replaced by our .city-hdr */
+.city-header {
+  display: none !important;
+}
 </style>
 </head>
 <body>
@@ -479,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 21:57</div>
+  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:03</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -762,7 +765,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T21:57:51";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:03:45";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
