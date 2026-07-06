@@ -482,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:25</div>
+  <div class="updated" id="updated-line">Обновлено: 06.07.2026 в 22:30</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -504,8 +504,8 @@ main, article, section { background: transparent !important; }
       <button class="edit-btn" onclick="openEdit('2026-09-26',1)">✎</button>
       <div class="day-num">День 1 · 26 сен</div>
       <div class="day-title">Прибытие в Осаку</div>
-      <div class="stops-list"><div class="stop-item"><div class="stop-time">19:30</div><div class="stop-content"><div class="stop-name">Заселение Namba / Minatomachi</div><div class="stop-transport">🚆 Nankai Airport Express KIX→Namba, 45 мин</div><div class="stop-desc">Базовый район в центре развлечений Осаки</div></div></div><div class="stop-item"><div class="stop-time">20:30</div><div class="stop-content"><div class="stop-name">Dotonbori — прогулка</div><div class="stop-transport">🚶 15 мин пешком от отеля</div><div class="stop-desc">Неоновые огни, канал, Glico Man, такояки</div></div></div></div>
-    </div>
+      <div class="stops-list">
+</div>
 
     <div class="day-card" data-date="2026-09-27">
       <button class="edit-btn" onclick="openEdit('2026-09-27',2)">✎</button>
@@ -786,7 +786,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:25:50";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-06T22:30:56";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
