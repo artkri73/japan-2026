@@ -392,8 +392,85 @@ main, article, section { background: transparent !important; }
 }
 .hotel-add-btn:hover { background: rgba(37,99,235,.06) !important; }
 
+
+/* === City section headers === */
+.city-hdr {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  padding: 14px 18px 12px;
+  margin: 28px 0 10px;
+  border-top: 3px solid var(--chdr-color, #2563eb);
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.city-hdr-icon { font-size: 26px; line-height: 1; margin-top: 2px; flex-shrink: 0; }
+.city-hdr-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--chdr-color, #2563eb);
+  line-height: 1.2;
+  margin: 0;
+}
+.city-hdr-sub { font-size: 13px; color: #6b7280; margin-top: 3px; }
+
+/* === Tokyo tips section === */
+.tokyo-tips-section {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0,0,0,.07);
+  padding: 16px 18px;
+  margin: 14px 0 28px;
+  border-left: 4px solid #2563eb;
+}
+.tokyo-tips-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2563eb;
+  margin-bottom: 10px;
+}
+.tokyo-tips-section li { font-size: 13px; color: #374151; margin-bottom: 5px; line-height: 1.5; }
+
+/* === Hotel row === */
+.hotel-row { display: flex; align-items: center; gap: 8px; margin: 4px 0 10px; min-height: 28px; }
+.hotel-link { font-size: 13px; color: #2563eb; text-decoration: none; border-bottom: 1px dashed rgba(37,99,235,.4); }
+.hotel-link:hover { border-bottom-color: #2563eb; }
+.hotel-input-wrap { display: flex; align-items: center; gap: 6px; flex: 1; }
+.hotel-inp {
+  font-size: 13px; border: 1px solid rgba(0,0,0,.15); border-radius: 8px;
+  padding: 4px 8px; flex: 1; color: #111827; background: #fff;
+}
+.hotel-inp:focus { outline: none; border-color: #2563eb; }
+.hotel-save-btn {
+  font-size: 12px; background: #2563eb; color: #fff; border: none;
+  border-radius: 7px; padding: 4px 10px; cursor: pointer;
+}
+.hotel-add-btn {
+  font-size: 12px; background: none; border: 1px dashed rgba(37,99,235,.4);
+  color: #2563eb; border-radius: 7px; padding: 3px 8px; cursor: pointer;
+}
+.hotel-add-btn:hover { background: rgba(37,99,235,.06); }
+
 </style>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%20%20%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23f5f0e8%22/%3E%0A%20%20%3Cpath%20d%3D%22M3%2015%20Q3%2011%207%2011%20L25%2011%20Q29%2011%2029%2015%20L29%2021%20Q29%2023%2027%2023%20L5%2023%20Q3%2023%203%2021Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L19%205%20Q24%205%2025%2011Z%22%20fill%3D%22%23d94f4f%22/%3E%0A%20%20%3Cpath%20d%3D%22M17%205%20Q23%206%2025%2011%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Cpath%20d%3D%22M8%2011%20Q9%206%2014%205%20L17%205%20L17%2011Z%22%20fill%3D%22%237ec8e3%22%20opacity%3D%220.9%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%229%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%224%22%20fill%3D%22%232c3e6b%22/%3E%0A%20%20%3Ccircle%20cx%3D%2223%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23e8c84a%22/%3E%0A%3C/svg%3E">
+<style id="tips-grid-fix">
+/* Fix советы по Токио — span all grid columns so it appears below all day cards */
+.tokyo-tips-section {
+  grid-column: 1 / -1 !important;
+  width: auto !important;
+  margin-top: 20px !important;
+}
+/* Ensure city-hdr (our injected headers) spans all columns */
+.city-hdr {
+  grid-column: 1 / -1 !important;
+  width: auto !important;
+}
+/* Hide original .city-header elements — replaced by our .city-hdr */
+.city-header {
+  display: none !important;
+}
+</style>
 </head>
 <body>
 <div class="hero">
@@ -405,7 +482,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 07.07.2026 в 20:04</div>
+  <div class="updated" id="updated-line">Обновлено: 07.07.2026 в 19:42</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -424,10 +501,9 @@ main, article, section { background: transparent !important; }
     <div class="days-grid">
 
     <div class="day-card" data-date="2026-09-26">
-      <button class="edit-btn" onclick="openEdit('2026-09-26',1)">✎</button>
-      <div class="day-num">День 1 · 26 сен</div>
-      <div class="day-title">Прибытие в Осаку</div>
-      <div class="stops-list">
+<div class="day-num">День 1 · 26 сен</div>
+<div class="day-title">Прибытие в Осаку</div>
+<div class="stops-list">
 <div class="stop-item">
 <div class="stop-time">19:30</div>
 <div class="stop-content">
@@ -445,13 +521,11 @@ main, article, section { background: transparent !important; }
 </div>
 </div>
 </div>
-    </div>
-
-    <div class="day-card" data-date="2026-09-27">
-      <button class="edit-btn" onclick="openEdit('2026-09-27',2)">✎</button>
-      <div class="day-num">День 2 · 27 сен</div>
-      <div class="day-title">История и Релакс</div>
-      <div class="stops-list">
+</div>
+<div class="day-card" data-date="2026-09-27">
+<div class="day-num">День 2 · 27 сен</div>
+<div class="day-title">История и Релакс</div>
+<div class="stops-list">
 <div class="stop-item">
 <div class="stop-time">08:00</div>
 <div class="stop-content">
@@ -501,26 +575,8 @@ main, article, section { background: transparent !important; }
 </div>
 </div>
 </div>
-    </div>
-
-    </div>
-    <div class="city-tips"><div class="tips-title">Советы по Осака</div><ul class="tips-list"><li>IC-карта ICOCA для всего местного транспорта</li><li>Такояки и окономияки — обязательно на улице</li><li>В Spa World лучше идти вечером</li></ul></div>
-  </div>
 </div>
-
-<!-- KYOTO -->
-<div class="city-block">
-  <div class="city-header city-kyoto">
-    <div class="city-icon">⛩️</div>
-    <div class="city-info">
-      <div class="city-name">Киото + Нара</div>
-      <div class="city-dates">28–30 сен · 3 ночи</div>
-    </div>
-  </div>
-  <div class="city-body">
-    <div class="days-grid">
-
-    <div class="day-card" data-date="2026-09-28">
+<div class="day-card" data-date="2026-09-28">
       <button class="edit-btn" onclick="openEdit('2026-09-28',3)">✎</button>
       <div class="day-num">День 3 · 28 сен</div>
       <div class="day-title">Осака → Киото</div>
@@ -689,7 +745,7 @@ main, article, section { background: transparent !important; }
   <div class="city-body">
     <div class="days-grid">
 
-    <div class="day-card" data-date="2026-10-01">
+    <div class="day-card" data-date="2026-10-01" data-hotel="Хиросима, Хиросима, 2-3-7 Matsubarachou, Япония">
       <button class="edit-btn" onclick="openEdit('2026-10-01',6)">✎</button>
       <div class="day-num">День 6 · 1 окт</div>
       <div class="day-title">Хиросима — Память</div>
@@ -824,6 +880,27 @@ main, article, section { background: transparent !important; }
       <div class="stops-list"></div>
     <div class="city-tips"><div class="tips-title">Советы по Токио</div><ul class="tips-list"><li>Suica или Pasmo IC-карта — для всего метро</li><li>Ginza Line: Asakusa→Ueno→Ginza→Shibuya</li><li>Вылет 8 октября — выезжать из центра не позднее 18:00</li></ul></div>
   </div>
+<div class="day-card" data-date="2026-10-05">
+<div class="day-num">День 10 · 5 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-06">
+<div class="day-num">День 11 · 6 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-07">
+<div class="day-num">День 12 · 7 окт</div>
+<div class="day-title">Токио — свободный день</div>
+<div class="stops-list"></div>
+</div>
+<div class="day-card" data-date="2026-10-08">
+<div class="day-num">День 13 · 8 окт</div>
+<div class="day-title">Токио — вылет</div>
+<div class="stops-list"></div>
+</div>
+
 </div>
 
 </div><!-- /cities -->
@@ -975,7 +1052,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-07T20:04:08";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-07T19:42:53";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1296,169 +1373,424 @@ if(document.readyState==='loading')
 else enhanceUI();
 })();
 </script>
-<script id="hotel-js">
+<script id="all-patches-js">
 (function(){
-var REPO='artkri73/japan-2026';
-var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
 
+/* ===== 1. CITY SECTION HEADERS ===== */
+var CITY_SECTIONS=[
+  {date:'2026-09-26',name:'Осака',              sub:'26–27 сен · 2 ночи', icon:'🏯',color:'#e05b5b'},
+  {date:'2026-09-28',name:'Киото + Нара',        sub:'28–30 сен · 3 ночи', icon:'⛩️',color:'#7c3aed'},
+  {date:'2026-10-01',name:'Хиросима + Миядзима', sub:'1–2 окт · 2 ночи',  icon:'🌿',color:'#059669'},
+  {date:'2026-10-03',name:'Токио',               sub:'3–8 окт · 5 ночей',  icon:'🗼',color:'#2563eb'},
+];
+
+function buildCityHeaders(){
+  /* Remove old-style .city-section-hdr duplicates */
+  document.querySelectorAll('.city-section-hdr').forEach(function(el){ el.remove(); });
+
+  CITY_SECTIONS.forEach(function(s){
+    if(document.querySelector('.city-hdr[data-for="'+s.date+'"]')) return;
+    var card=document.querySelector('[data-date="'+s.date+'"]');
+    if(!card) return;
+    var hdr=document.createElement('div');
+    hdr.className='city-hdr';
+    hdr.dataset.for=s.date;
+    hdr.style.cssText='--chdr-color:'+s.color;
+    hdr.innerHTML='<div class="city-hdr-icon">'+s.icon+'</div>'
+      +'<div><div class="city-hdr-name">'+s.name+'</div>'
+      +'<div class="city-hdr-sub">'+s.sub+'</div></div>';
+    card.parentNode.insertBefore(hdr,card);
+  });
+}
+
+/* ===== 2. MOVE СОВЕТЫ ПО ТОКИО AFTER LAST TOKYO DAY ===== */
+function moveTips(){
+  if(document.querySelector('.tokyo-tips-section')) return;
+
+  /* Find the last Tokyo day card */
+  var lastDay=null;
+  ['2026-10-08','2026-10-07','2026-10-06','2026-10-05','2026-10-04','2026-10-03'].forEach(function(d){
+    if(!lastDay) lastDay=document.querySelector('[data-date="'+d+'"]');
+  });
+  if(!lastDay) return;
+
+  /* Find советы block anywhere in the page — search all day cards */
+  var tipsEl=null;
+  document.querySelectorAll('[data-date]').forEach(function(card){
+    if(tipsEl) return;
+    /* Walk all descendants, not just direct children */
+    var all=Array.from(card.querySelectorAll('*'));
+    all.forEach(function(el){
+      if(tipsEl) return;
+      if(el.closest('.struct-edit-panel')||el.closest('.hotel-row')) return;
+      var txt=(el.textContent||'').toLowerCase();
+      /* Must have советы text AND be a block element */
+      var tag=el.tagName;
+      if((tag==='DIV'||tag==='SECTION'||tag==='ASIDE')
+        && txt.indexOf('советы по токио')>=0
+        && el.children.length>0){
+        tipsEl=el;
+      }
+    });
+  });
+
+  if(!tipsEl){ console.log('tips-move: советы block not found'); return; }
+
+  var wrap=document.createElement('div');
+  wrap.className='tokyo-tips-section';
+  /* Give inner title the right class */
+  var fc=tipsEl.firstElementChild;
+  if(fc&&(fc.tagName==='DIV'||fc.tagName==='STRONG'||fc.tagName==='H3'||fc.tagName==='H4')){
+    fc.className='tokyo-tips-title';
+  }
+  tipsEl.parentNode.removeChild(tipsEl);
+  wrap.appendChild(tipsEl);
+  lastDay.parentNode.insertBefore(wrap, lastDay.nextSibling);
+  console.log('tips-move: moved советы after', lastDay.dataset.date);
+}
+
+/* ===== 3. HOTEL FIELD ===== */
+var HOTEL_API='https://api.github.com/repos/artkri73/japan-2026/contents/index.html';
+function htok(){ return localStorage.getItem('gh_token'); }
 function ghFetch(){
-  var tok=localStorage.getItem('gh_token');
-  if(!tok){alert('Нет GitHub token');return Promise.reject('no token');}
-  return fetch(APIURL+'?t='+Date.now(),
-    {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
+  if(!htok()){alert('Нет GitHub token');return Promise.reject('no token');}
+  return fetch(HOTEL_API+'?t='+Date.now(),
+    {headers:{Authorization:'token '+htok(),Accept:'application/vnd.github.v3+json'},cache:'no-store'})
     .then(function(r){return r.json();})
     .then(function(d){return{html:decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))),sha:d.sha};});
 }
-function ghPush(html,sha,msg){
-  var tok=localStorage.getItem('gh_token');
-  var b64=btoa(unescape(encodeURIComponent(html)));
-  return fetch(APIURL,{method:'PUT',
-    headers:{Authorization:'token '+tok,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+function ghPush(content,sha,msg){
+  var b64=btoa(unescape(encodeURIComponent(content)));
+  return fetch(HOTEL_API,{method:'PUT',
+    headers:{Authorization:'token '+htok(),'Content-Type':'application/json',
+             Accept:'application/vnd.github.v3+json'},
     body:JSON.stringify({message:msg,content:b64,sha:sha,branch:'main'})
   }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
 }
-
-/* Save hotel name to data-hotel attribute in HTML */
-function saveHotel(date, hotelName) {
-  var card = document.querySelector('[data-date="'+date+'"]');
+function saveHotel(date,name){
   ghFetch().then(function(x){
-    var h = x.html;
-    /* Update or add data-hotel attribute on the day card */
-    var re = new RegExp('(<[^>]*data-date="'+date+'"[^>]*?)( data-hotel="[^"]*")?([^>]*>)');
-    if(re.test(h)){
-      h = h.replace(re, function(m, p1, p2, p3){
-        return p1 + ' data-hotel="'+hotelName.replace(/"/g,'&quot;')+'"' + p3;
-      });
-    }
-    return ghPush(h, x.sha, 'hotel: '+hotelName+' ('+date+')');
+    var h=x.html;
+    var re=new RegExp('(<[^>]*data-date="'+date+'"[^>]*?)( data-hotel="[^"]*")?([^>]*>)');
+    h=h.replace(re,function(m,p1,p2,p3){
+      return p1+' data-hotel="'+name.replace(/"/g,'&quot;')+'"'+p3;
+    });
+    return ghPush(h,x.sha,'hotel('+date+'): '+name);
   }).then(function(){
-    renderHotel(card, date, hotelName);
-    var ind = card.querySelector('.save-ind');
-    if(ind){ind.className='save-ind saved';ind.textContent='✅ Отель сохранён';
-      setTimeout(function(){ind.style.opacity='0';},2000);}
-  }).catch(function(e){
-    alert('Ошибка: '+e.message);
-  });
+    var card=document.querySelector('[data-date="'+date+'"]');
+    if(card) renderHotel(card,date,name);
+  }).catch(function(e){alert('Ошибка: '+e.message);});
 }
-
-function renderHotel(card, date, hotelName) {
-  var row = card.querySelector('.hotel-row');
-  if(!row) return;
-  if(hotelName){
-    var url = 'https://www.google.com/maps/search/'+encodeURIComponent(hotelName+' hotel Japan');
-    row.innerHTML =
-      '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
-      '<a class="hotel-link" href="'+url+'" target="_blank" rel="noopener">'+hotelName+'</a>'+
-      '<button class="hotel-add-btn" onclick="editHotel(\''+date+'\',\''+hotelName.replace(/'/g,"\\'")+'\')" style="margin-left:auto;font-size:11px;">✏️</button>';
+function renderHotel(card,date,name){
+  var row=card.querySelector('.hotel-row'); if(!row) return;
+  if(name){
+    var url='https://www.google.com/maps/search/'+encodeURIComponent(name+' hotel Japan');
+    row.innerHTML='<span style="font-size:13px;color:#9ca3af;">🏨</span>'
+      +'<a class="hotel-link" href="'+url+'" target="_blank">'+name+'</a>'
+      +'<button class="hotel-add-btn" style="margin-left:auto" '
+      +'onclick="window._editHotel(event,\''+date+'\',\''+name.replace(/'/g,'&#39;')+'\')">✏️</button>';
   } else {
-    row.innerHTML =
-      '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
-      '<button class="hotel-add-btn" onclick="editHotel(\''+date+'\',\'\')">+ Добавить отель</button>';
+    row.innerHTML='<span style="font-size:13px;color:#9ca3af;">🏨</span>'
+      +'<button class="hotel-add-btn" onclick="window._editHotel(event,\''+date+'\',\'\')">+ Добавить отель</button>';
   }
 }
-
-window.editHotel = function(date, current) {
-  var card = document.querySelector('[data-date="'+date+'"]');
-  var row = card ? card.querySelector('.hotel-row') : null;
-  if(!row) return;
-  row.innerHTML =
-    '<span style="font-size:12px;color:#9ca3af;margin-right:2px;">🏨</span>'+
-    '<div class="hotel-input-wrap">'+
-      '<input class="hotel-inp" id="hinp-'+date+'" placeholder="Название отеля..." value="'+current+'">'+
-      '<button class="hotel-save-btn" onclick="confirmHotel(\''+date+'\')">Сохранить</button>'+
-      '<button class="hotel-add-btn" onclick="cancelHotel(\''+date+'\',\''+current.replace(/'/g,"\\'")+'\')" style="border-color:rgba(0,0,0,.15);color:#6b7280;">✕</button>'+
-    '</div>';
-  var inp = document.getElementById('hinp-'+date);
-  if(inp){inp.focus();inp.select();}
-  inp.addEventListener('keydown', function(e){
-    if(e.key==='Enter') confirmHotel(date);
-    if(e.key==='Escape') cancelHotel(date, current);
-  });
+window._editHotel=function(ev,date,current){
+  ev&&ev.stopPropagation();
+  var card=document.querySelector('[data-date="'+date+'"]');
+  var row=card&&card.querySelector('.hotel-row'); if(!row) return;
+  row.innerHTML='<span style="font-size:13px;color:#9ca3af;">🏨</span>'
+    +'<div class="hotel-input-wrap">'
+    +'<input class="hotel-inp" id="hi-'+date+'" placeholder="Название отеля..." value="'+current.replace(/"/g,'&quot;')+'">'
+    +'<button class="hotel-save-btn" onclick="window._saveHotel(\''+date+'\')">Сохранить</button>'
+    +'<button class="hotel-add-btn" style="border-color:rgba(0,0,0,.15);color:#6b7280" '
+    +'onclick="window._cancelHotel(\''+date+'\',\''+current.replace(/'/g,'&#39;')+'\')">✕</button>'
+    +'</div>';
+  var inp=document.getElementById('hi-'+date);
+  if(inp){inp.focus();inp.select();
+    inp.onkeydown=function(e){
+      if(e.key==='Enter') window._saveHotel(date);
+      if(e.key==='Escape') window._cancelHotel(date,current);
+    };}
 };
-
-window.confirmHotel = function(date) {
-  var inp = document.getElementById('hinp-'+date);
-  if(!inp) return;
-  var name = inp.value.trim();
-  saveHotel(date, name);
+window._saveHotel=function(date){
+  var inp=document.getElementById('hi-'+date);
+  if(inp) saveHotel(date,inp.value.trim());
 };
-
-window.cancelHotel = function(date, current) {
-  var card = document.querySelector('[data-date="'+date+'"]');
-  if(card) renderHotel(card, date, current);
+window._cancelHotel=function(date,cur){
+  var card=document.querySelector('[data-date="'+date+'"]');
+  if(card) renderHotel(card,date,cur);
 };
-
-/* Move советы/tips block to right below day title */
-function fixTipsPosition(card) {
-  /* Find tips block — any div that has советы/tips title inside but is NOT stop-item */
-  var tips = Array.from(card.querySelectorAll('div,section,aside')).filter(function(el){
-    if(el.dataset.tipsFixed) return false;
-    if(el.closest('.struct-edit-panel')) return false;
-    var txt = (el.textContent||'').toLowerCase();
-    var isTop = el.parentElement === card; /* direct child of card */
-    var hasTipsContent = txt.indexOf('совет') >= 0 || txt.indexOf('tips') >= 0 || txt.indexOf('подсказк') >= 0;
-    var notStopItem = !el.classList.contains('stop-item') && !el.classList.contains('hotel-row');
-    return isTop && hasTipsContent && notStopItem && el.children.length > 0;
-  });
-
-  if(tips.length === 0) return;
-
-  /* Find day title element */
-  var titleEl = card.querySelector('.day-title,.title,h2,h3,strong,[class*="title"]');
-  /* Try to find the hotel-row */
-  var hotelRow = card.querySelector('.hotel-row');
-  var insertAfter = hotelRow || titleEl;
-
-  tips.forEach(function(tip){
-    tip.dataset.tipsFixed = '1';
-    /* Style tip nicely */
-    tip.style.setProperty('border-left', 'none', 'important');
-    tip.style.setProperty('background', 'rgba(37,99,235,.04)', 'important');
-    tip.style.setProperty('border', '1px solid rgba(37,99,235,.12)', 'important');
-    tip.style.setProperty('border-radius', '10px', 'important');
-    tip.style.setProperty('padding', '10px 14px', 'important');
-    tip.style.setProperty('margin-bottom', '10px', 'important');
-    tip.style.setProperty('font-size', '13px', 'important');
-
-    if(insertAfter && insertAfter.parentElement === card){
-      card.insertBefore(tip, insertAfter.nextSibling);
-      insertAfter = tip; /* chain next tip after this one */
-    }
+function initHotels(){
+  document.querySelectorAll('[data-date]').forEach(function(card){
+    var date=card.dataset.date;
+    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)||card.querySelector('.hotel-row')) return;
+    var titleEl=card.querySelector('.day-title,.title,h2,h3,strong');
+    var row=document.createElement('div');
+    row.className='hotel-row';
+    if(titleEl&&titleEl.parentElement===card)
+      card.insertBefore(row,titleEl.nextSibling);
+    else card.insertBefore(row,card.firstChild);
+    renderHotel(card,date,card.dataset.hotel||'');
   });
 }
 
-/* Inject hotel row and fix tips for all day cards */
-function initHotels(){
-  document.querySelectorAll('[data-date]').forEach(function(card){
-    var date = card.dataset.date;
-    if(!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-    if(card.querySelector('.hotel-row')) return; /* already done */
-
-    /* Find insertion point: after day title */
-    var titleEl = card.querySelector('.day-title,.title,h2,h3,strong,[class*="title"]');
-
-    /* Create hotel row */
-    var row = document.createElement('div');
-    row.className = 'hotel-row';
-    row.dataset.date = date;
-
-    var hotelName = card.dataset.hotel || '';
-    if(titleEl && titleEl.parentElement === card){
-      card.insertBefore(row, titleEl.nextSibling);
-    } else {
-      card.insertBefore(row, card.firstChild);
-    }
-    renderHotel(card, date, hotelName);
-
-    /* Fix tips position after hotel row is added */
-    fixTipsPosition(card);
-  });
+/* ===== RUN ALL ===== */
+function runAll(){
+  buildCityHeaders();
+  initHotels();
+  moveTips(); /* Must run AFTER initHotels so hotel-row exists for context */
 }
 
 if(document.readyState==='loading')
-  document.addEventListener('DOMContentLoaded', initHotels);
-else initHotels();
+  document.addEventListener('DOMContentLoaded',runAll);
+else runAll();
+
 })();
 </script>
+<script id="patch4-edit-temp-js">
+(function () {
+'use strict';
+
+/* ── UTF-8 → base64 ── */
+function toB64(s) {
+  var enc = new TextEncoder().encode(s);
+  var bin = '';
+  for (var i = 0; i < enc.length; i++) bin += String.fromCharCode(enc[i]);
+  return btoa(bin);
+}
+
+/* ── regex escape ── */
+function escRe(s) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/* ── save field to GitHub ── */
+async function saveField(fieldType, key, oldText, newText) {
+  var token = localStorage.getItem('gh_token');
+  if (!token) { alert('Введите GitHub Token в ⚙️ Настройки'); return false; }
+  try {
+    var resp = await fetch(
+      'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
+      { headers: { Authorization: 'token ' + token, Accept: 'application/vnd.github.v3+json' } }
+    );
+    if (!resp.ok) throw new Error('GitHub ' + resp.status);
+    var info = await resp.json();
+    var sha  = info.sha;
+    var raw  = atob(info.content.replace(/\n/g, ''));
+    var buf  = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
+    var src  = new TextDecoder('utf-8').decode(buf);
+    var patched;
+
+    if (fieldType === 'day-title') {
+      var re = new RegExp(
+        '(data-date="' + key + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
+      );
+      patched = src.replace(re, function(m,p1,p2,p3){ return p1 + newText + p3; });
+    } else if (fieldType === 'city-name') {
+      /* key = city class like "city-osaka" */
+      var re2 = new RegExp(
+        '(class="city-header ' + key + '".*?<div class="city-info">.*?<div>)([^<]*)(</div>)', 'ms'
+      );
+      patched = src.replace(re2, function(m,p1,p2,p3){ return p1 + newText + p3; });
+    } else {
+      var esc = escRe(oldText);
+      var re3 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
+      patched = src.replace(re3, function(m,p1,p2){ return p1 + newText + p2; });
+    }
+
+    if (patched === src) {
+      console.warn('[p5] not found:', fieldType, JSON.stringify(oldText));
+      return false;
+    }
+    var pr = await fetch(
+      'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
+      {
+        method: 'PUT',
+        headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json',
+                   Accept: 'application/vnd.github.v3+json' },
+        body: JSON.stringify({ message: 'edit: ' + fieldType + ' ' + key,
+                               content: toB64(patched), sha: sha, branch: 'main' })
+      }
+    );
+    return pr.ok;
+  } catch(e) {
+    console.error('[p5]', e);
+    alert('Ошибка: ' + e.message);
+    return false;
+  }
+}
+
+/* ── generic inline edit helper ── */
+function startEdit(el, onSave) {
+  if (el.contentEditable === 'true') return;
+  var orig = el.textContent.trim();
+  el.contentEditable = 'true';
+  el.focus();
+  var rng = document.createRange();
+  rng.selectNodeContents(el);
+  var sel = window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(rng);
+
+  var done = false;
+  async function commit() {
+    if (done) return; done = true;
+    el.contentEditable = 'false';
+    var nv = el.textContent.trim();
+    if (!nv || nv === orig) { el.textContent = orig; return; }
+    el.style.opacity = '0.5';
+    var ok = await onSave(orig, nv);
+    el.style.opacity = '';
+    if (ok) {
+      el.style.outline = '2px solid #4CAF50';
+      setTimeout(function(){ el.style.outline = ''; }, 1500);
+    } else { el.textContent = orig; }
+  }
+  el.addEventListener('blur', commit, { once: true });
+  el.addEventListener('keydown', function kh(e) {
+    if (e.key === 'Enter')  { e.preventDefault(); el.blur(); }
+    if (e.key === 'Escape') { done = true; el.contentEditable = 'false'; el.textContent = orig;
+                              el.removeEventListener('keydown', kh); }
+  });
+}
+
+/* ── dblclick handler — day fields ── */
+document.addEventListener('dblclick', function(ev) {
+  var el = ev.target.closest('.day-title, .stop-desc, .stop-transport');
+  if (!el || el.contentEditable === 'true') return;
+  var card = el.closest('[data-date]');
+  if (!card) return;
+  var date = card.getAttribute('data-date');
+  var ft   = el.classList.contains('day-title') ? 'day-title'
+           : el.classList.contains('stop-desc')  ? 'stop-desc' : 'stop-transport';
+  startEdit(el, function(orig, nv){ return saveField(ft, date, orig, nv); });
+});
+
+/* ── dblclick handler — city name ── */
+document.addEventListener('dblclick', function(ev) {
+  /* city-hdr structure: .city-hdr > div.city-hdr-icon + div > div(name) + div(dates) */
+  var cityHdr = ev.target.closest('.city-hdr');
+  if (!cityHdr) return;
+  /* Find the name-div: second child of cityHdr → first child of that */
+  var wrap    = cityHdr.children[1];
+  if (!wrap) return;
+  var nameEl  = wrap.children[0];
+  if (!nameEl || !nameEl.contains(ev.target)) return;
+  if (nameEl.contentEditable === 'true') return;
+
+  /* Find city class from hidden .city-header sibling */
+  var block      = cityHdr.closest('.city-block');
+  var hiddenHdr  = block && block.querySelector('.city-header');
+  var cityClass  = hiddenHdr && Array.from(hiddenHdr.classList)
+                     .find(function(c){ return c.startsWith('city-') && c !== 'city-header'; });
+  if (!cityClass) return;
+
+  startEdit(nameEl, function(orig, nv){ return saveField('city-name', cityClass, orig, nv); });
+});
+
+/* ── WMO weathercode → emoji ── */
+var WMO_EMOJI = {
+   0:'☀️',  1:'🌤️',  2:'⛅',  3:'☁️',
+  45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌦️', 56:'🌦️', 57:'🌦️',
+  61:'🌧️', 63:'🌧️', 65:'🌧️', 66:'🌧️', 67:'🌧️',
+  71:'❄️',  73:'❄️',  75:'❄️',  77:'❄️',
+  80:'🌧️', 81:'🌧️', 82:'🌧️',
+  85:'❄️',  86:'❄️',
+  95:'⛈️', 96:'⛈️', 99:'⛈️'
+};
+function wmoEmoji(code) { return WMO_EMOJI[code] || ''; }
+
+/* ── temperature + weather ── */
+var COORDS = {
+  '2026-09-26':[34.6937,135.5022],'2026-09-27':[34.6937,135.5022],
+  '2026-09-28':[35.0116,135.7681],'2026-09-29':[35.0116,135.7681],'2026-09-30':[35.0116,135.7681],
+  '2026-10-01':[34.3853,132.4553],'2026-10-02':[34.3853,132.4553],
+  '2026-10-03':[35.6762,139.6503],'2026-10-04':[35.6762,139.6503],
+  '2026-10-05':[35.6762,139.6503],'2026-10-06':[35.6762,139.6503],
+  '2026-10-07':[35.6762,139.6503],'2026-10-08':[35.6762,139.6503]
+};
+
+async function fetchWeather() {
+  var groups = {};
+  Object.keys(COORDS).forEach(function(d) {
+    var ll = COORDS[d]; var k = ll[0]+','+ll[1];
+    if (!groups[k]) groups[k] = { lat:ll[0], lon:ll[1], dates:[] };
+    groups[k].dates.push(d);
+  });
+
+  var results   = {};   /* date → {temp, code} */
+  var futureMax = new Date(Date.now() + 15*86400000).toISOString().slice(0,10);
+
+  for (var k in groups) {
+    var g = groups[k];
+    var sorted = g.dates.slice().sort();
+    var start  = sorted[0], end = sorted[sorted.length-1];
+    var arch   = start > futureMax;
+    var s = arch ? start.replace('2026','2025') : start;
+    var e = arch ? end.replace('2026','2025')   : end;
+    var base = arch
+      ? 'https://archive-api.open-meteo.com/v1/archive'
+      : 'https://api.open-meteo.com/v1/forecast';
+    var url = base +
+      '?latitude=' + g.lat + '&longitude=' + g.lon +
+      '&daily=temperature_2m_max,temperature_2m_min,weathercode' +
+      '&timezone=Asia%2FTokyo&start_date=' + s + '&end_date=' + e;
+    try {
+      var r = await fetch(url);
+      if (!r.ok) continue;
+      var data = await r.json();
+      if (!data.daily || !data.daily.time) continue;
+      data.daily.time.forEach(function(dt, i) {
+        var tripDate = arch ? dt.replace('2025','2026') : dt;
+        var mx = data.daily.temperature_2m_max[i];
+        var mn = data.daily.temperature_2m_min[i];
+        var wc = data.daily.weathercode ? data.daily.weathercode[i] : null;
+        if (mx != null && mn != null)
+          results[tripDate] = { temp: Math.round((mx+mn)/2), code: wc };
+      });
+    } catch(ex) { console.warn('[p5] weather fetch:', ex); }
+  }
+
+  document.querySelectorAll('[data-date]').forEach(function(card) {
+    var d = card.getAttribute('data-date');
+    var w = results[d];
+    if (!w) return;
+    var dn = card.querySelector('.day-num');
+    if (!dn) return;
+    var sp = dn.querySelector('.day-temp');
+    if (!sp) { sp = document.createElement('span'); sp.className = 'day-temp'; dn.appendChild(sp); }
+    var emoji = wmoEmoji(w.code);
+    sp.textContent = ' 🌡️ ' + w.temp + '°C' + (emoji ? ' ' + emoji : '');
+    sp.title = 'Средняя температура · погода по данным 2025';
+  });
+}
+
+fetchWeather();
+
+/* ── CSS ── */
+(function() {
+  if (document.getElementById('p4-edit-sty')) return;
+  var s = document.createElement('style');
+  s.id = 'p4-edit-sty';
+  s.textContent = [
+    '.day-title,.stop-desc,.stop-transport{cursor:pointer}',
+    '.day-title:hover,.stop-desc:hover,.stop-transport:hover{',
+    '  outline:1px dashed rgba(255,255,255,.4);border-radius:3px;background:rgba(255,255,255,.12)}',
+    '.city-hdr .city-hdr-name > div:first-child,.city-hdr > div:not(.city-hdr-icon) > div:first-child{cursor:pointer}',
+    '.city-hdr > div:not(.city-hdr-icon) > div:first-child:hover{',
+    '  outline:1px dashed rgba(255,255,255,.5);border-radius:3px;background:rgba(255,255,255,.1);',
+    '  padding:0 4px}',
+    '[contenteditable=true]{background:rgba(255,255,255,.93)!important;color:#1a1a1a!important;',
+    '  border-radius:3px;padding:1px 5px;outline:2px solid #4caf50!important;',
+    '  min-width:60px;display:inline-block}',
+    '.day-temp{font-size:.76em;opacity:.85;font-weight:400;margin-left:3px}'
+  ].join('');
+  document.head.appendChild(s);
+})();
+
+})();
+</script>
+
 </body>
 </html>
