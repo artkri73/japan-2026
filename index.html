@@ -2,6 +2,12 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmciIHgxPSIwIiB5MT0iMCIgeDI9IjAiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3RvcC1jb2xvcj0iI2Q0M2EzYSIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0b3AtY29sb3I9IiM3YTBkMGQiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTEwIiBmaWxsPSJ1cmwoI2JnKSIvPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI0OCIgcj0iMTUwIiBmaWxsPSJ3aGl0ZSIvPgogIDxwb2x5Z29uIHBvaW50cz0iMTQxLDIxNyAzNzEsMjE3IDM4MiwxOTYgMTMwLDE5NiIgZmlsbD0iI2M0MWUzYSIvPgogIDxyZWN0IHg9IjE4NiIgeT0iMjQ4IiB3aWR0aD0iMTQwIiBoZWlnaHQ9IjE4IiByeD0iMiIgZmlsbD0iI2M0MWUzYSIvPgogIDxyZWN0IHg9IjE5NiIgeT0iMjA1IiB3aWR0aD0iMjYiIGhlaWdodD0iMTI0IiByeD0iMyIgZmlsbD0iI2M0MWUzYSIvPgogIDxyZWN0IHg9IjI5MCIgeT0iMjA1IiB3aWR0aD0iMjYiIGhlaWdodD0iMTI0IiByeD0iMyIgZmlsbD0iI2M0MWUzYSIvPgogIDx0ZXh0IHg9IjI1NiIgeT0iNDM2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxzYW5zLXNlcmlmIiBmb250LXNpemU9IjM4IiBmb250LXdlaWdodD0iODAwIiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuODgpIj4yMDI2PC90ZXh0Pgo8L3N2Zz4=">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Япония 26">
+<meta name="theme-color" content="#c41e3a">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Япония 2026 — Маршрут</title>
 <style>
@@ -1395,6 +1401,7 @@ function buildCityHeaders(){
     var hdr=document.createElement('div');
     hdr.className='city-hdr';
     hdr.dataset.for=s.date;
+    hdr.dataset.cityName=s.name;
     hdr.style.cssText='--chdr-color:'+s.color;
     hdr.innerHTML='<div class="city-hdr-icon">'+s.icon+'</div>'
       +'<div><div class="city-hdr-name">'+s.name+'</div>'
@@ -1587,11 +1594,10 @@ async function saveField(fieldType, key, oldText, newText) {
       );
       patched = src.replace(re, function(m,p1,p2,p3){ return p1 + newText + p3; });
     } else if (fieldType === 'city-name') {
-      /* key = city class like "city-osaka" */
-      var re2 = new RegExp(
-        '(class="city-header ' + key + '".*?<div class="city-info">.*?<div>)([^<]*)(</div>)', 'ms'
-      );
-      patched = src.replace(re2, function(m,p1,p2,p3){ return p1 + newText + p3; });
+      /* key = original city name text — find <div class="city-name">TEXT</div> and replace */
+      var esc3 = escRe(key);
+      var re2 = new RegExp('(<div class="city-name">)' + esc3 + '(</div>)');
+      patched = src.replace(re2, function(m, p1, p2){ return p1 + newText + p2; });
     } else {
       var esc = escRe(oldText);
       var re3 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
@@ -1678,14 +1684,13 @@ document.addEventListener('dblclick', function(ev) {
   if (!nameEl || !nameEl.contains(ev.target)) return;
   if (nameEl.contentEditable === 'true') return;
 
-  /* Find city class from hidden .city-header sibling */
-  var block      = cityHdr.closest('.city-block');
-  var hiddenHdr  = block && block.querySelector('.city-header');
-  var cityClass  = hiddenHdr && Array.from(hiddenHdr.classList)
-                     .find(function(c){ return c.startsWith('city-') && c !== 'city-header'; });
-  if (!cityClass) return;
-
-  startEdit(nameEl, function(orig, nv){ return saveField('city-name', cityClass, orig, nv); });
+  /* Use stored city name directly — works for all cities including Kyoto */
+  var origCityName = cityHdr.dataset.cityName || nameEl.textContent.trim();
+  startEdit(nameEl, function(orig, nv){
+    var p = saveField('city-name', origCityName, orig, nv);
+    p.then && p.then(function(ok){ if(ok){ cityHdr.dataset.cityName=nv; origCityName=nv; } });
+    return p;
+  });
 });
 
 /* ── WMO weathercode → emoji ── */
