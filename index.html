@@ -488,7 +488,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 07.07.2026 в 22:02</div>
+  <div class="updated" id="updated-line">Обновлено: 08.07.2026 в 16:08</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -1058,7 +1058,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-07T22:02:09";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-08T16:08:59";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1593,21 +1593,28 @@ async function saveField(fieldType, key, oldText, newText) {
         '(data-date="' + key + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
       );
       patched = src.replace(re, function(m,p1,p2,p3){ return p1 + newText + p3; });
-    } else if (fieldType === 'city-name') {
-      /* key = original city name text — find <div class="city-name">TEXT</div> and replace */
+        } else if (fieldType === 'city-name') {
+      /* key = original city name — update name:'...' in CITY_SECTIONS (all cities incl. Kyoto) */
       var esc3 = escRe(key);
-      var re2 = new RegExp('(<div class="city-name">)' + esc3 + '(</div>)');
-      patched = src.replace(re2, function(m, p1, p2){ return p1 + newText + p2; });
-    } else {
-      var esc = escRe(oldText);
-      var re3 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
-      patched = src.replace(re3, function(m,p1,p2){ return p1 + newText + p2; });
-    }
+      var re2 = new RegExp("(name:')(" + esc3 + ")(')");
+      patched = src.replace(re2, function(m, p1, p2, p3){ return p1 + newText + p3; });
+      /* also update hidden .city-name div if present (for PDF) */
+      var re2b = new RegExp('(<div class="city-name">)' + esc3 + '(</div>)');
+      if (re2b.test(patched)) {
+        patched = patched.replace(re2b, function(m, p1, p2){ return p1 + newText + p2; });
+      }
+
 
     if (patched === src) {
       console.warn('[p5] not found:', fieldType, JSON.stringify(oldText));
       return false;
     }
+    /* update PAGE_TIMESTAMP to now so "Обновлено" shows correct time */
+    (function(){
+      var _d=new Date(),_p=function(n){return String(n).padStart(2,'0')};
+      var _ts=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
+      patched=patched.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+_ts+'";');
+    })();
     var pr = await fetch(
       'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
       {
@@ -1794,6 +1801,22 @@ fetchWeather();
   document.head.appendChild(s);
 })();
 
+})();
+
+/* Dynamic "Обновлено" display — reads PAGE_TIMESTAMP on every load */
+(function(){
+  function showTs(){
+    var el=document.getElementById('updated-line');
+    if(!el) return;
+    try{
+      var d=new Date(PAGE_TIMESTAMP);
+      if(isNaN(d)) return;
+      var p=function(n){return String(n).padStart(2,'0')};
+      el.textContent='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',showTs);
+  else showTs();
 })();
 </script>
 
