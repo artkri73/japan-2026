@@ -488,7 +488,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 08.07.2026 в 16:08</div>
+  <div class="updated" id="updated-line">Обновлено: 09.07.2026 в 12:27</div>
   <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
 </div>
 
@@ -1058,7 +1058,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-08T16:08:59";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T12:27:14";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1646,18 +1646,12 @@ function startEdit(el, onSave) {
   sel.addRange(rng);
 
   var done = false;
-  async function commit() {
+  function commit() {
     if (done) return; done = true;
     el.contentEditable = 'false';
     var nv = el.textContent.trim();
     if (!nv || nv === orig) { el.textContent = orig; return; }
-    el.style.opacity = '0.5';
-    var ok = await onSave(orig, nv);
-    el.style.opacity = '';
-    if (ok) {
-      el.style.outline = '2px solid #4CAF50';
-      setTimeout(function(){ el.style.outline = ''; }, 1500);
-    } else { el.textContent = orig; }
+    showSaveConfirm(orig, nv, el, onSave);
   }
   el.addEventListener('blur', commit, { once: true });
   el.addEventListener('keydown', function kh(e) {
@@ -1665,6 +1659,56 @@ function startEdit(el, onSave) {
     if (e.key === 'Escape') { done = true; el.contentEditable = 'false'; el.textContent = orig;
                               el.removeEventListener('keydown', kh); }
   });
+}
+
+/* ── save confirmation dialog (shown after any inline edit) ── */
+function showSaveConfirm(orig, nv, el, onSave) {
+  var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  modal.innerHTML =
+    '<div style="background:#1a1a2e;border:1px solid #3a3a6a;border-radius:18px;padding:22px 24px;max-width:340px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.7);">'
+    +'<div style="font-size:16px;font-weight:700;color:#e0e0ff;margin-bottom:12px;">Сохранить изменение?</div>'
+    +'<div style="font-size:13px;color:#999;background:#0d0d1a;border-radius:10px;padding:10px 14px;margin-bottom:18px;line-height:1.7;word-break:break-word;">'
+    +'<span style="color:#ff7a8a">−</span> <span style="text-decoration:line-through;opacity:0.7">'+esc(orig)+'</span><br>'
+    +'<span style="color:#4CAF50">+</span> <strong style="color:#e0e0ff">'+esc(nv)+'</strong>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;">'
+    +'<button id="sc-cancel" style="flex:1;background:none;border:1px solid #3a3a5a;color:#888;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;touch-action:manipulation;">Отмена</button>'
+    +'<button id="sc-save" style="flex:2;background:#2563eb;border:none;color:#fff;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;touch-action:manipulation;">Сохранить ✓</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+
+  function doCancel() {
+    modal.remove();
+    el.textContent = orig;
+  }
+  function doSave() {
+    modal.remove();
+    el.textContent = nv;
+    el.style.opacity = '0.5';
+    Promise.resolve(onSave(orig, nv)).then(function(ok) {
+      el.style.opacity = '';
+      if (ok) {
+        /* update Обновлено line immediately in the UI */
+        var upd = document.getElementById('updated-line');
+        if (upd) {
+          var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+          upd.textContent = 'Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+        }
+        el.style.outline = '2px solid #4CAF50';
+        setTimeout(function() { el.style.outline = ''; }, 1500);
+        if (typeof showStatus === 'function') showStatus('✅ Сохранено! Страница обновится через ~35 сек.');
+      } else {
+        el.textContent = orig;
+      }
+    }).catch(function() { el.style.opacity = ''; el.textContent = orig; });
+  }
+
+  document.getElementById('sc-save').addEventListener('click', doSave);
+  document.getElementById('sc-cancel').addEventListener('click', doCancel);
+  /* tap backdrop = cancel */
+  modal.addEventListener('click', function(e) { if (e.target === modal) doCancel(); });
 }
 
 /* ── dblclick handler — day fields ── */
