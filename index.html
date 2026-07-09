@@ -1618,6 +1618,7 @@ async function saveField(fieldType, key, oldText, newText) {
       }
     );
     return pr.ok;
+    }
   } catch(e) {
     console.error('[p5]', e);
     alert('Ошибка: ' + e.message);
