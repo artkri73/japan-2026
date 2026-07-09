@@ -1050,7 +1050,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T13:11:55";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T09:38:47.010227";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1377,7 +1377,7 @@ else enhanceUI();
 /* ===== 1. CITY SECTION HEADERS ===== */
 var CITY_SECTIONS=[
   {date:'2026-09-26',name:'Осака',              sub:'26–27 сен · 2 ночи', icon:'🏯',color:'#e05b5b'},
-  {date:'2026-09-28',name:'Киото + Нара',        sub:'28–30 сен · 3 ночи', icon:'⛩️',color:'#7c3aed'},
+  {date:'2026-09-28',name:'Киото',        sub:'28–30 сен · 3 ночи', icon:'⛩️',color:'#7c3aed'},
   {date:'2026-10-01',name:'Хиросима + Миядзима', sub:'1–2 окт · 2 ночи',  icon:'🌿',color:'#059669'},
   {date:'2026-10-03',name:'Токио',               sub:'3–8 окт · 5 ночей',  icon:'🗼',color:'#2563eb'},
 ];
