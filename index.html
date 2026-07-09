@@ -1595,7 +1595,7 @@ async function saveField(fieldType, key, oldText, newText) {
       if (re2b.test(patched)) {
         patched = patched.replace(re2b, function(m, p1, p2){ return p1 + newText + p2; });
       }
-
+    }
 
     if (patched === src) {
       console.warn('[p5] not found:', fieldType, JSON.stringify(oldText));
@@ -1618,7 +1618,6 @@ async function saveField(fieldType, key, oldText, newText) {
       }
     );
     return pr.ok;
-    }
   } catch(e) {
     console.error('[p5]', e);
     alert('Ошибка: ' + e.message);
