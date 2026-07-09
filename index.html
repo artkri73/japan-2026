@@ -1207,287 +1207,6 @@ window.addEventListener('load', () => {
 </script>
 
 
-<script id="ui-upgrade-v6">
-(function(){
-var REPO='artkri73/japan-2026';
-var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
-
-function ghFetch(){
-  var tok=localStorage.getItem('gh_token');
-  if(!tok){alert('❌ Нет GitHub token. Войди в Настройки.');return Promise.reject('no token');}
-  return fetch(APIURL+'?t='+Date.now(),
-    {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
-    .then(function(r){return r.json();})
-    .then(function(d){return{html:decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))),sha:d.sha};});
-}
-function ghPush(html,sha,msg){
-  var tok=localStorage.getItem('gh_token');
-  var b64=btoa(unescape(encodeURIComponent(html)));
-  return fetch(APIURL,{method:'PUT',
-    headers:{Authorization:'token '+tok,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
-    body:JSON.stringify({message:msg,content:b64,sha:sha,branch:'main'})
-  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
-}
-function stampHtml(html){
-  var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
-  var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
-  var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
-  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T12:36:43";');
-  html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
-  return html;
-}
-function _removeStop(html,date,name){
-  var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-  var dayIdx=html.indexOf('data-date="'+date+'"');
-  if(dayIdx<0) return html;
-  var nextDay=html.indexOf('data-date="',dayIdx+20);
-  var haystack=nextDay>0?html.slice(dayIdx,nextDay):html.slice(dayIdx);
-  var re=new RegExp('>'+escaped+'(?:</a>)?</div>');
-  var nm=re.exec(haystack);
-  if(!nm) return html;
-  var namePos=dayIdx+nm.index;
-  var before=html.slice(0,namePos);
-  var itemStart=-1,tagName='div';
-  [['<li ','li'],['<li\n','li'],['<div class="stop-item','div'],
-   ['<div class="stop "','div'],['<div class="event"','div']].forEach(function(pair){
-    var idx=before.lastIndexOf(pair[0]);
-    if(idx>itemStart){itemStart=idx;tagName=pair[1];}
-  });
-  if(itemStart<0) return html;
-  var depth=0,itemEnd=-1;
-  var closeRe=new RegExp('<'+tagName+'[\\s>]|</'+tagName+'>','g');
-  closeRe.lastIndex=itemStart;
-  var m;
-  while((m=closeRe.exec(html))!==null){
-    if(m.index<itemStart) continue;
-    if(m[0].startsWith('</')){if(depth===0){itemEnd=m.index+m[0].length;break;}depth--;}
-    else depth++;
-  }
-  if(itemEnd<0) return html;
-  return html.slice(0,itemStart).trimEnd()+'\n'+html.slice(itemEnd).trimStart();
-}
-
-/* ── DOM helpers ── */
-function _cardOf(date){return document.querySelector('[data-date="'+date+'"]');}
-function _showInd(card,msg,type){
-  if(!card) return;
-  var ind=card.querySelector('.save-ind')||document.createElement('span');
-  ind.className='save-ind '+type; ind.textContent=msg;
-  if(!ind.parentElement){
-    var p=card.querySelector('.struct-edit-panel');
-    if(p) p.insertBefore(ind,p.firstChild); else card.appendChild(ind);
-  }
-  if(type==='saved'||type==='error')
-    setTimeout(function(){ind.style.opacity='0';setTimeout(function(){if(ind.parentElement)ind.remove();},400);},2500);
-}
-function _enhanceStop(el,date,name){
-  var nd=el.querySelector?el.querySelector('.stop-name'):el;
-  if(!nd||nd.dataset.enh) return;
-  nd.dataset.enh='1';
-  var btn=document.createElement('button');
-  btn.className='stop-del-btn'; btn.title='Удалить'; btn.innerHTML='&times;';
-  btn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
-  var a=document.createElement('a');
-  a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
-  a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
-  nd.textContent=''; nd.appendChild(btn); nd.appendChild(a);
-}
-function _makeStopEl(date,name,t){
-  var card=_cardOf(date);
-  var proto=card&&card.querySelector('.stop-item,li.stop-item');
-  var el;
-  if(proto){
-    el=proto.cloneNode(true);
-    var te=el.querySelector('.stop-time,.time'),ne=el.querySelector('.stop-name,.name');
-    if(te) te.textContent=t||'';
-    if(ne){ne.dataset.enh='';ne.textContent=name;}
-    var tr=el.querySelector('[class*="transport"]'); if(tr) tr.remove();
-  } else {
-    el=document.createElement('div'); el.className='stop-item';
-    el.innerHTML='<div class="stop-time">'+(t||'')+'</div><div class="stop-name">'+name+'</div>';
-  }
-  _enhanceStop(el,date,name); return el;
-}
-function _findItemEl(card,name){
-  var els=card.querySelectorAll('.stop-name');
-  for(var i=0;i<els.length;i++){
-    var el=els[i],n=(el.querySelector('a')||el).textContent.trim();
-    if(n===name) return el.closest('.stop-item,li')||el.parentElement;
-  }
-  return null;
-}
-function _allStopItems(card){
-  return Array.from(card.querySelectorAll('.stop-item,li.stop-item')).filter(function(el){
-    return !el.classList.contains('struct-edit-panel')&&!el.querySelector('.struct-edit-panel');
-  });
-}
-
-/* ── Optimistic actions ── */
-window.addStopToDay=function(date,placeId,timeId){
-  var inp=document.getElementById(placeId);
-  var name=inp?inp.value.trim():'';
-  var t=(document.getElementById(timeId)||{}).value||'';
-  if(!name){if(inp)inp.focus();return;}
-  var card=_cardOf(date);
-  var newEl=_makeStopEl(date,name,t);
-  if(card){var ep=card.querySelector('.struct-edit-panel');ep?card.insertBefore(newEl,ep):card.appendChild(newEl);}
-  if(inp) inp.value='';
-  _showInd(card,'💾 Сохраняем...','saving');
-  ghFetch().then(function(x){
-    var h=stampHtml(x.html);h=_addStop(h,date,name,t);
-    return ghPush(h,x.sha,'add: '+name+(t?' в '+t:'')+' ('+date+')');
-  }).then(function(){_showInd(card,'✅ Сохранено','saved');})
-  .catch(function(e){
-    if(newEl&&newEl.parentElement)newEl.parentElement.removeChild(newEl);
-    _showInd(card,'❌ '+e.message,'error');
-  });
-};
-window.removeStopFromDay=function(date,name){
-  var card=_cardOf(date);
-  var item=card?_findItemEl(card,name):null;
-  var saved={el:item,parent:item&&item.parentElement,next:item&&item.nextSibling};
-  if(item){item.style.transition='opacity .15s';item.style.opacity='0';setTimeout(function(){if(item.parentElement)item.parentElement.removeChild(item);},150);}
-  _showInd(card,'💾 Сохраняем...','saving');
-  ghFetch().then(function(x){
-    var h=stampHtml(x.html);h=_removeStop(h,date,name);
-    return ghPush(h,x.sha,'remove: '+name+' ('+date+')');
-  }).then(function(){_showInd(card,'✅ Удалено','saved');})
-  .catch(function(e){
-    if(saved.el){saved.el.style.opacity='1';if(saved.parent){if(saved.next&&saved.next.parentElement===saved.parent)saved.parent.insertBefore(saved.el,saved.next);else saved.parent.appendChild(saved.el);}}
-    _showInd(card,'❌ '+e.message,'error');
-  });
-};
-window.clearDayStops=function(date){
-  if(!confirm('Очистить весь день?')) return;
-  var card=_cardOf(date);
-  var items=card?_allStopItems(card):[];
-  var saved=items.map(function(el){return{el:el,parent:el.parentElement,next:el.nextSibling};});
-  items.forEach(function(el){el.style.transition='opacity .15s';el.style.opacity='0';setTimeout(function(){if(el.parentElement)el.parentElement.removeChild(el);},150);});
-  _showInd(card,'💾 Сохраняем...','saving');
-  ghFetch().then(function(x){
-    var h=stampHtml(x.html);h=_clearDay(h,date);
-    return ghPush(h,x.sha,'clear: '+date);
-  }).then(function(){_showInd(card,'✅ День очищен','saved');})
-  .catch(function(e){
-    saved.forEach(function(s){s.el.style.opacity='1';if(s.parent){if(s.next&&s.next.parentElement===s.parent)s.parent.insertBefore(s.el,s.next);else s.parent.appendChild(s.el);}});
-    _showInd(card,'❌ '+e.message,'error');
-  });
-};
-
-/* ── Fix nesting: move any [data-date] nested inside another to be siblings ── */
-function fixNesting(){
-  var allCards=Array.from(document.querySelectorAll('[data-date]'));
-  allCards.forEach(function(card){
-    var nested=Array.from(card.querySelectorAll('[data-date]'));
-    nested.forEach(function(child){
-      card.parentNode.insertBefore(child, card.nextSibling);
-    });
-  });
-}
-
-/* ── Build day tab bar — scroll-to nav, all days visible ── */
-function buildTabs(){
-  if(document.getElementById('day-tab-bar')) return;
-  var cards=Array.from(document.querySelectorAll('[data-date]'));
-  if(!cards.length) return;
-
-  var bar=document.createElement('div');
-  bar.id='day-tab-bar';
-
-  /* IntersectionObserver to highlight tab of day in viewport */
-  var tabs=[];
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(e){
-      if(e.isIntersecting){
-        var idx=cards.indexOf(e.target);
-        if(idx>=0){
-          tabs.forEach(function(t){t.classList.remove('active');});
-          if(tabs[idx]) tabs[idx].classList.add('active');
-        }
-      }
-    });
-  },{threshold:0.4});
-
-  cards.forEach(function(card,i){
-    var tab=document.createElement('button');
-    tab.className='day-tab'+(i===0?' active':'');
-    tab.textContent='Д'+(i+1);
-    tab.onclick=function(){
-      card.scrollIntoView({behavior:'smooth',block:'start'});
-    };
-    bar.appendChild(tab);
-    tabs.push(tab);
-    card.style.display='';   /* ensure all days visible */
-    obs.observe(card);
-  });
-
-  /* Insert tab bar before the first day card */
-  var firstCard=cards[0];
-  firstCard.parentNode.insertBefore(bar, firstCard);
-}
-
-/* ── Enhance stops + inject edit panels ── */
-function enhanceUI(){
-  /* Fix nesting first */
-  fixNesting();
-
-  document.querySelectorAll('[data-date]').forEach(function(card){
-    var date=card.dataset.date;
-    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
-
-    /* Enhance existing stop-names */
-    card.querySelectorAll('.stop-name').forEach(function(el){
-      if(el.dataset.enh) return;
-      el.dataset.enh='1';
-      var name=el.textContent.trim();
-      if(!name) return;
-      var btn=document.createElement('button');
-      btn.className='stop-del-btn'; btn.title='Удалить'; btn.innerHTML='&times;';
-      btn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
-      var a=document.createElement('a');
-      a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
-      a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
-      el.textContent=''; el.appendChild(btn); el.appendChild(a);
-    });
-
-    /* Hide redundant corner buttons */
-    card.querySelectorAll('button').forEach(function(btn){
-      var cls=btn.className||'';
-      if(cls.indexOf('struct-')<0&&cls.indexOf('stop-del')<0&&cls.indexOf('refresh-btn')<0&&cls.indexOf('day-tab')<0){
-        var firstStop=card.querySelector('.stop-item,li.stop-item');
-        if(!firstStop||btn.compareDocumentPosition(firstStop)&Node.DOCUMENT_POSITION_FOLLOWING){
-          btn.style.setProperty('display','none','important');
-        }
-      }
-    });
-
-    /* Add edit panel if not present */
-    if(card.querySelector('.struct-edit-panel')) return;
-    var suf=date.replace(/-/g,'');
-    var panel=document.createElement('div');
-    panel.className='struct-edit-panel';
-    panel.innerHTML=
-      '<div class="struct-add-form">'+
-        '<input type="time" class="struct-time-in" id="stime-'+suf+'" value="10:00">'+
-        '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
-        '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\',\'stime-'+suf+'\')">+ Добавить</button>'+
-      '</div>'+
-      '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить день</button>';
-    panel.addEventListener('keydown',function(e){
-      if(e.key==='Enter'&&e.target.classList.contains('struct-place-in'))
-        addStopToDay(date,'splace-'+suf,'stime-'+suf);
-    });
-    card.appendChild(panel);
-  });
-
-  /* tabs removed */
-}
-
-if(document.readyState==='loading')
-  document.addEventListener('DOMContentLoaded',enhanceUI);
-else enhanceUI();
-})();
-</script>
 <script id="hotel-js">
 (function(){
 var REPO='artkri73/japan-2026';
@@ -1676,6 +1395,235 @@ else initHotels();
   if(document.readyState==='loading')
     document.addEventListener('DOMContentLoaded', hideCornerBtns);
   else hideCornerBtns();
+})();
+</script>
+<script id="ui-upgrade-v4">
+(function(){
+var REPO='artkri73/japan-2026';
+var APIURL='https://api.github.com/repos/'+REPO+'/contents/index.html';
+
+function ghFetch(){
+  var tok=localStorage.getItem('gh_token');
+  if(!tok){showStatus('❌ Нет GitHub token. Войди в ⚙️');return Promise.reject('no token');}
+  return fetch(APIURL+'?t='+Date.now(),
+    {headers:{Authorization:'token '+tok,Accept:'application/vnd.github.v3+json'},cache:'no-store'})
+    .then(function(r){return r.json();})
+    .then(function(d){return{html:decodeURIComponent(escape(atob(d.content.replace(/\n/g,'')))),sha:d.sha};});
+}
+function ghPush(html,sha,msg){
+  var tok=localStorage.getItem('gh_token');
+  var b64=btoa(unescape(encodeURIComponent(html)));
+  return fetch(APIURL,{method:'PUT',
+    headers:{Authorization:'token '+tok,'Content-Type':'application/json',Accept:'application/vnd.github.v3+json'},
+    body:JSON.stringify({message:msg,content:b64,sha:sha,branch:'main'})
+  }).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();});
+}
+function stampHtml(html){
+  var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
+  var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+  var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+now+'";');
+  html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
+  return html;
+}
+function _removeStop(html,date,name){
+  var escaped=name.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  var dayIdx=html.indexOf('data-date="'+date+'"');
+  if(dayIdx<0) return html;
+  var nextDay=html.indexOf('data-date="',dayIdx+20);
+  var haystack=nextDay>0?html.slice(dayIdx,nextDay):html.slice(dayIdx);
+  var re=new RegExp('>'+escaped+'(?:</a>)?</div>');
+  var nm=re.exec(haystack);
+  if(!nm) return html;
+  var namePos=dayIdx+nm.index;
+  var before=html.slice(0,namePos);
+  var itemStart=-1,tagName='div';
+  [['<li ','li'],['<li\n','li'],['<div class="stop-item','div'],
+   ['<div class="stop "','div'],['<div class="event"','div']].forEach(function(pair){
+    var idx=before.lastIndexOf(pair[0]);
+    if(idx>itemStart){itemStart=idx;tagName=pair[1];}
+  });
+  if(itemStart<0){
+    return html.replace(new RegExp('<div[^>]*class="[^"]*stop-(?:name|time)[^"]*"[^>]*>[^<]*'+escaped+'[^<]*<\\/div>'),'');
+  }
+  var depth=0,itemEnd=-1;
+  var closeRe=new RegExp('<'+tagName+'[\\s>]|</'+tagName+'>','g');
+  closeRe.lastIndex=itemStart;
+  var m;
+  while((m=closeRe.exec(html))!==null){
+    if(m.index<itemStart) continue;
+    if(m[0].startsWith('</')){if(depth===0){itemEnd=m.index+m[0].length;break;}depth--;}
+    else depth++;
+  }
+  if(itemEnd<0) return html;
+  return html.slice(0,itemStart).trimEnd()+'\n'+html.slice(itemEnd).trimStart();
+}
+
+/* ── DOM helpers for optimistic UI ── */
+function _cardOf(date){return document.querySelector('[data-date="'+date+'"]');}
+function _showInd(card,msg,type){
+  if(!card) return;
+  var ind=card.querySelector('.save-ind')||document.createElement('span');
+  ind.className='save-ind '+type; ind.textContent=msg;
+  if(!ind.parentElement){
+    var p=card.querySelector('.struct-edit-panel');
+    if(p) p.insertBefore(ind,p.firstChild); else card.appendChild(ind);
+  }
+  if(type==='saved'||type==='error')
+    setTimeout(function(){ind.style.opacity='0';setTimeout(function(){if(ind.parentElement)ind.remove();},400);},2500);
+}
+function _enhanceNew(el,date,name){
+  var nd=el.querySelector ? el.querySelector('.stop-name') : el;
+  if(!nd||nd.dataset.enh) return;
+  nd.dataset.enh='1';
+  var btn=document.createElement('button');
+  btn.className='stop-del-btn'; btn.title='Удалить'; btn.innerHTML='&times;';
+  btn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
+  var a=document.createElement('a');
+  a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
+  a.target='_blank'; a.rel='noopener noreferrer'; a.className='sn-link'; a.textContent=name;
+  nd.textContent=''; nd.appendChild(btn); nd.appendChild(a);
+}
+function _makeStopEl(date,name,time){
+  var card=_cardOf(date);
+  var proto=card&&card.querySelector('[class*="stop-item"],li');
+  var el;
+  if(proto){
+    el=proto.cloneNode(true);
+    var te=el.querySelector('[class*="stop-time"]'),ne=el.querySelector('[class*="stop-name"]');
+    if(te) te.textContent=time||'';
+    if(ne){ne.dataset.enh='';ne.textContent=name;}
+    var tr=el.querySelector('[class*="transport"]'); if(tr) tr.textContent='';
+  } else {
+    el=document.createElement('div'); el.className='stop-item';
+    el.innerHTML='<div class="stop-time">'+(time||'')+'</div><div class="stop-name">'+name+'</div>';
+  }
+  _enhanceNew(el,date,name);
+  return el;
+}
+function _findItemEl(card,name){
+  var els=card.querySelectorAll('.stop-name');
+  for(var i=0;i<els.length;i++){
+    var el=els[i],n=(el.querySelector('a')||el).textContent.trim();
+    if(n===name) return el.closest('[class*="stop-item"],li')||el.parentElement;
+  }
+  return null;
+}
+function _allStopItems(card){
+  var items=Array.from(card.querySelectorAll('[class*="stop-item"],li'));
+  if(!items.length){
+    card.querySelectorAll('.stop-name').forEach(function(el){
+      var p=el.closest('li')||el.parentElement;
+      if(p&&p!==card&&items.indexOf(p)<0) items.push(p);
+    });
+  }
+  return items.filter(function(el){return !el.classList.contains('struct-edit-panel')&&!el.querySelector('.struct-edit-panel');});
+}
+
+/* ── Actions — optimistic UI ── */
+window.addStopToDay=function(date,placeId,timeId){
+  var inp=document.getElementById(placeId);
+  var name=inp?inp.value.trim():'';
+  var t=(document.getElementById(timeId)||{}).value||'';
+  if(!name){if(inp)inp.focus();return;}
+  var card=_cardOf(date);
+  /* 1. DOM immediately */
+  var newEl=_makeStopEl(date,name,t);
+  if(card){var ep=card.querySelector('.struct-edit-panel');ep?card.insertBefore(newEl,ep):card.appendChild(newEl);}
+  if(inp) inp.value='';
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);h=_addStop(h,date,name,t);
+    return ghPush(h,x.sha,'add: '+name+(t?' в '+t:'')+' ('+date+')');
+  }).then(function(){_showInd(card,'✅ Сохранено','saved');})
+  .catch(function(e){
+    if(newEl&&newEl.parentElement)newEl.parentElement.removeChild(newEl);
+    _showInd(card,'❌ '+e.message,'error');
+  });
+};
+window.removeStopFromDay=function(date,name){
+  var card=_cardOf(date);
+  var item=card?_findItemEl(card,name):null;
+  /* 1. DOM immediately */
+  var saved={el:item,parent:item&&item.parentElement,next:item&&item.nextSibling};
+  if(item){item.style.transition='opacity .15s';item.style.opacity='0';setTimeout(function(){if(item.parentElement)item.parentElement.removeChild(item);},150);}
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);h=_removeStop(h,date,name);
+    return ghPush(h,x.sha,'remove: '+name+' ('+date+')');
+  }).then(function(){_showInd(card,'✅ Удалено','saved');})
+  .catch(function(e){
+    /* rollback */
+    if(saved.el){saved.el.style.opacity='1';if(saved.parent){if(saved.next&&saved.next.parentElement===saved.parent)saved.parent.insertBefore(saved.el,saved.next);else saved.parent.appendChild(saved.el);}}
+    _showInd(card,'❌ '+e.message,'error');
+  });
+};
+window.clearDayStops=function(date){
+  if(!confirm('Очистить весь день?')) return;
+  var card=_cardOf(date);
+  var items=card?_allStopItems(card):[];
+  /* 1. DOM immediately */
+  var saved=items.map(function(el){return{el:el,parent:el.parentElement,next:el.nextSibling};});
+  items.forEach(function(el){el.style.transition='opacity .15s';el.style.opacity='0';setTimeout(function(){if(el.parentElement)el.parentElement.removeChild(el);},150);});
+  _showInd(card,'💾 Сохраняем...','saving');
+  /* 2. Push in background */
+  ghFetch().then(function(x){
+    var h=stampHtml(x.html);h=_clearDay(h,date);
+    return ghPush(h,x.sha,'clear: '+date);
+  }).then(function(){_showInd(card,'✅ День очищен','saved');})
+  .catch(function(e){
+    saved.forEach(function(s){s.el.style.opacity='1';if(s.parent){if(s.next&&s.next.parentElement===s.parent)s.parent.insertBefore(s.el,s.next);else s.parent.appendChild(s.el);}});
+    _showInd(card,'❌ '+e.message,'error');
+  });
+};
+
+function enhanceUI(){
+  document.querySelectorAll('[data-date]').forEach(function(card){
+    var date=card.dataset.date;
+    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
+    card.querySelectorAll('.stop-name').forEach(function(el){
+      if(el.dataset.enh) return;
+      el.dataset.enh='1';
+      var name=el.textContent.trim();
+      if(!name) return;
+      var delBtn=document.createElement('button');
+      delBtn.className='stop-del-btn';
+      delBtn.title='Удалить';
+      delBtn.innerHTML='&times;';
+      delBtn.onclick=function(e){e.stopPropagation();removeStopFromDay(date,name);};
+      var a=document.createElement('a');
+      a.href='https://www.google.com/maps/search/'+encodeURIComponent(name+', Japan');
+      a.target='_blank';
+      a.rel='noopener noreferrer';
+      a.className='sn-link';
+      a.textContent=name;
+      el.textContent='';
+      el.appendChild(delBtn);
+      el.appendChild(a);
+    });
+    if(card.querySelector('.struct-edit-panel')) return;
+    var suf=date.replace(/-/g,'');
+    var panel=document.createElement('div');
+    panel.className='struct-edit-panel';
+    panel.innerHTML=
+      '<div class="struct-add-form">'+
+        '<input type="time" class="struct-time-in" id="stime-'+suf+'" value="10:00">'+
+        '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
+        '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\',\'stime-'+suf+'\')">+ Добавить</button>'+
+      '</div>'+
+      '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить весь день</button>';
+    panel.addEventListener('keydown',function(e){
+      if(e.key==='Enter'&&e.target.classList.contains('struct-place-in'))
+        addStopToDay(date,'splace-'+suf,'stime-'+suf);
+    });
+    card.appendChild(panel);
+  });
+}
+if(document.readyState==='loading')
+  document.addEventListener('DOMContentLoaded',enhanceUI);
+else enhanceUI();
 })();
 </script>
 </body>
