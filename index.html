@@ -1058,7 +1058,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T12:36:27";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1089,7 +1089,7 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-06-28T09:32:59";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
@@ -1123,7 +1123,7 @@ function stampHtml(html){
   var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
   var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
   var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
-  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";');
+  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+now+'";');
   html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
   return html;
 }
@@ -1593,22 +1593,28 @@ async function saveField(fieldType, key, oldText, newText) {
         '(data-date="' + key + '".*?<div class="day-title">)([^<]*)(</div>)', 'ms'
       );
       patched = src.replace(re, function(m,p1,p2,p3){ return p1 + newText + p3; });
-    } else if (fieldType === 'city-name') {
-      /* key = city class like "city-osaka" */
-      var re2 = new RegExp(
-        '(class="city-header ' + key + '".*?<div class="city-info">.*?<div>)([^<]*)(</div>)', 'ms'
-      );
-      patched = src.replace(re2, function(m,p1,p2,p3){ return p1 + newText + p3; });
-    } else {
-      var esc = escRe(oldText);
-      var re3 = new RegExp('(<div class="' + fieldType + '">)' + esc + '(</div>)');
-      patched = src.replace(re3, function(m,p1,p2){ return p1 + newText + p2; });
-    }
+        } else if (fieldType === 'city-name') {
+      /* key = original city name — update name:'...' in CITY_SECTIONS (all cities incl. Kyoto) */
+      var esc3 = escRe(key);
+      var re2 = new RegExp("(name:')(" + esc3 + ")(')");
+      patched = src.replace(re2, function(m, p1, p2, p3){ return p1 + newText + p3; });
+      /* also update hidden .city-name div if present (for PDF) */
+      var re2b = new RegExp('(<div class="city-name">)' + esc3 + '(</div>)');
+      if (re2b.test(patched)) {
+        patched = patched.replace(re2b, function(m, p1, p2){ return p1 + newText + p2; });
+      }
+
 
     if (patched === src) {
       console.warn('[p5] not found:', fieldType, JSON.stringify(oldText));
       return false;
     }
+    /* update PAGE_TIMESTAMP to now so "Обновлено" shows correct time */
+    (function(){
+      var _d=new Date(),_p=function(n){return String(n).padStart(2,'0')};
+      var _ts=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
+      patched=patched.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+_ts+'";');
+    })();
     var pr = await fetch(
       'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
       {
@@ -1640,18 +1646,12 @@ function startEdit(el, onSave) {
   sel.addRange(rng);
 
   var done = false;
-  async function commit() {
+  function commit() {
     if (done) return; done = true;
     el.contentEditable = 'false';
     var nv = el.textContent.trim();
     if (!nv || nv === orig) { el.textContent = orig; return; }
-    el.style.opacity = '0.5';
-    var ok = await onSave(orig, nv);
-    el.style.opacity = '';
-    if (ok) {
-      el.style.outline = '2px solid #4CAF50';
-      setTimeout(function(){ el.style.outline = ''; }, 1500);
-    } else { el.textContent = orig; }
+    showSaveConfirm(orig, nv, el, onSave);
   }
   el.addEventListener('blur', commit, { once: true });
   el.addEventListener('keydown', function kh(e) {
@@ -1659,6 +1659,56 @@ function startEdit(el, onSave) {
     if (e.key === 'Escape') { done = true; el.contentEditable = 'false'; el.textContent = orig;
                               el.removeEventListener('keydown', kh); }
   });
+}
+
+/* ── save confirmation dialog (shown after any inline edit) ── */
+function showSaveConfirm(orig, nv, el, onSave) {
+  var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;';
+  modal.innerHTML =
+    '<div style="background:#1a1a2e;border:1px solid #3a3a6a;border-radius:18px;padding:22px 24px;max-width:340px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,0.7);">'
+    +'<div style="font-size:16px;font-weight:700;color:#e0e0ff;margin-bottom:12px;">Сохранить изменение?</div>'
+    +'<div style="font-size:13px;color:#999;background:#0d0d1a;border-radius:10px;padding:10px 14px;margin-bottom:18px;line-height:1.7;word-break:break-word;">'
+    +'<span style="color:#ff7a8a">−</span> <span style="text-decoration:line-through;opacity:0.7">'+esc(orig)+'</span><br>'
+    +'<span style="color:#4CAF50">+</span> <strong style="color:#e0e0ff">'+esc(nv)+'</strong>'
+    +'</div>'
+    +'<div style="display:flex;gap:10px;">'
+    +'<button id="sc-cancel" style="flex:1;background:none;border:1px solid #3a3a5a;color:#888;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;touch-action:manipulation;">Отмена</button>'
+    +'<button id="sc-save" style="flex:2;background:#2563eb;border:none;color:#fff;padding:12px;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;touch-action:manipulation;">Сохранить ✓</button>'
+    +'</div></div>';
+  document.body.appendChild(modal);
+
+  function doCancel() {
+    modal.remove();
+    el.textContent = orig;
+  }
+  function doSave() {
+    modal.remove();
+    el.textContent = nv;
+    el.style.opacity = '0.5';
+    Promise.resolve(onSave(orig, nv)).then(function(ok) {
+      el.style.opacity = '';
+      if (ok) {
+        /* update Обновлено line immediately in the UI */
+        var upd = document.getElementById('updated-line');
+        if (upd) {
+          var d = new Date(), p = function(n){ return String(n).padStart(2,'0'); };
+          upd.textContent = 'Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+        }
+        el.style.outline = '2px solid #4CAF50';
+        setTimeout(function() { el.style.outline = ''; }, 1500);
+        if (typeof showStatus === 'function') showStatus('✅ Сохранено! Страница обновится через ~35 сек.');
+      } else {
+        el.textContent = orig;
+      }
+    }).catch(function() { el.style.opacity = ''; el.textContent = orig; });
+  }
+
+  document.getElementById('sc-save').addEventListener('click', doSave);
+  document.getElementById('sc-cancel').addEventListener('click', doCancel);
+  /* tap backdrop = cancel */
+  modal.addEventListener('click', function(e) { if (e.target === modal) doCancel(); });
 }
 
 /* ── dblclick handler — day fields ── */
@@ -1685,14 +1735,13 @@ document.addEventListener('dblclick', function(ev) {
   if (!nameEl || !nameEl.contains(ev.target)) return;
   if (nameEl.contentEditable === 'true') return;
 
-  /* Find city class from hidden .city-header sibling */
-  var block      = cityHdr.closest('.city-block');
-  var hiddenHdr  = block && block.querySelector('.city-header');
-  var cityClass  = hiddenHdr && Array.from(hiddenHdr.classList)
-                     .find(function(c){ return c.startsWith('city-') && c !== 'city-header'; });
-  if (!cityClass) return;
-
-  startEdit(nameEl, function(orig, nv){ return saveField('city-name', cityClass, orig, nv); });
+  /* Use stored city name directly — works for all cities including Kyoto */
+  var origCityName = cityHdr.dataset.cityName || nameEl.textContent.trim();
+  startEdit(nameEl, function(orig, nv){
+    var p = saveField('city-name', origCityName, orig, nv);
+    p.then && p.then(function(ok){ if(ok){ cityHdr.dataset.cityName=nv; origCityName=nv; } });
+    return p;
+  });
 });
 
 /* ── WMO weathercode → emoji ── */
@@ -1796,6 +1845,22 @@ fetchWeather();
   document.head.appendChild(s);
 })();
 
+})();
+
+/* Dynamic "Обновлено" display — reads PAGE_TIMESTAMP on every load */
+(function(){
+  function showTs(){
+    var el=document.getElementById('updated-line');
+    if(!el) return;
+    try{
+      var d=new Date(PAGE_TIMESTAMP);
+      if(isNaN(d)) return;
+      var p=function(n){return String(n).padStart(2,'0')};
+      el.textContent='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',showTs);
+  else showTs();
 })();
 </script>
 
