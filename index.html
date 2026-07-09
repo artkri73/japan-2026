@@ -867,7 +867,7 @@ main, article, section { background: transparent !important; }
     <div class="day-card" data-date="2026-10-03">
       <button class="edit-btn" onclick="openEdit('2026-10-03',8)">✎</button>
       <div class="day-num">День 8 · 3 окт</div>
-      <div class="day-title">Токио — свободный день</div>
+      <div class="day-title">Токио — Синдзюку и Акихабара</div>
       <div class="stops-list">
 </div>
 
@@ -1050,7 +1050,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T09:38:47.010227";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T14:56:00";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
