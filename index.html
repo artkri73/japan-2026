@@ -883,7 +883,7 @@ main, article, section { background: transparent !important; }
       <button class="edit-btn" onclick="openEdit('2026-10-04',9)">✎</button>
       <div class="day-num">День 9 · 4 окт</div>
       <div class="day-title">Токио — свободный день</div>
-      <div class="stops-list"></div>
+      <div class="stops-list"><div class="stop-item"><div class="stop-time">14:00</div><div class="stop-content"><div class="stop-name">Namba Walk</div></div></div></div>
     <div class="city-tips"><div class="tips-title">Советы по Токио</div><ul class="tips-list"><li>Suica или Pasmo IC-карта — для всего метро</li><li>Ginza Line: Asakusa→Ueno→Ginza→Shibuya</li><li>Вылет 8 октября — выезжать из центра не позднее 18:00</li></ul></div>
   </div>
 <div class="day-card" data-date="2026-10-05">
@@ -1058,7 +1058,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T12:36:58";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T09:37:00.314501";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1089,7 +1089,7 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-07-09T12:36:58";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-07-09T09:37:00.314501";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
@@ -1123,7 +1123,7 @@ function stampHtml(html){
   var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
   var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
   var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
-  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T12:36:58";');
+  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T09:37:00.314501";');
   html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
   return html;
 }
@@ -1618,7 +1618,7 @@ async function saveField(fieldType, key, oldText, newText) {
     (function(){
       var _d=new Date(),_p=function(n){return String(n).padStart(2,'0')};
       var _ts=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-      patched=patched.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T12:36:58";');
+      patched=patched.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T09:37:00.314501";');
     })();
     var pr = await fetch(
       'https://api.github.com/repos/artkri73/japan-2026/contents/index.html',
