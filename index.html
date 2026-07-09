@@ -1058,7 +1058,7 @@ async function sendCmd() {
     html = isClear ? _clearDay(html, currentDate) : _addStop(html, currentDate, place, timeStr);
     const _d=new Date(),_p=n=>String(n).padStart(2,'0');
     const now=_d.getFullYear()+'-'+_p(_d.getMonth()+1)+'-'+_p(_d.getDate())+'T'+_p(_d.getHours())+':'+_p(_d.getMinutes())+':'+_p(_d.getSeconds());
-    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T12:36:27";');
+    html = html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/, 'const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";');
     const pr = await fetch(GH_API + 'index.html', {
       method: 'PUT',
       headers: { Authorization: 'token ' + token, 'Content-Type': 'application/json' },
@@ -1089,7 +1089,7 @@ function showStatus(msg) {
 }
 
 // Update timestamp
-const PAGE_TIMESTAMP = "2026-06-28T09:32:59";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
+const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";t.getElementById('updated-line').textContent = 'Обновлено: ' + PAGE_TIMESTAMP.slice(0,10).split('-').reverse().join('.');
 
 // Show settings on first load
 window.addEventListener('load', () => {
@@ -1123,7 +1123,7 @@ function stampHtml(html){
   var d=new Date(),p=function(n){return String(n).padStart(2,'0');};
   var now=d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
   var disp='Обновлено: '+p(d.getDate())+'.'+p(d.getMonth()+1)+'.'+d.getFullYear()+' в '+p(d.getHours())+':'+p(d.getMinutes());
-  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "'+now+'";');
+  html=html.replace(/const PAGE_TIMESTAMP\s*=\s*"[^"]*";?/,'const PAGE_TIMESTAMP = "2026-07-09T09:37:50.012884";');
   html=html.replace(/Обновлено:\s*[\d.]+\s+в\s+[\d:]+/,disp);
   return html;
 }
