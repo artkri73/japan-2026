@@ -140,7 +140,7 @@ body{background:#0f0f1a;color:#e8e8f0;font-family:-apple-system,BlinkMacSystemFo
 }
 
 
-.refresh-btn{background:none;border:1px solid #2a2a4a;color:#666;padding:2px 8px;border-radius:12px;font-size:11px;cursor:pointer;margin-left:8px;vertical-align:middle;transition:all .2s}
+
 .refresh-btn:hover{border-color:#5599ff;color:#5599ff}
 .stop-name a{color:inherit;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:2px;text-decoration-color:#3a3a6a}
 .stop-name a:hover{text-decoration-color:#5599ff;color:#99bbff}
@@ -215,20 +215,7 @@ main, article, section { background: transparent !important; }
 .stop-name { color: #111827 !important; font-size: 14px !important; }
 
 /* Refresh button */
-.refresh-btn {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 4px !important;
-  background: none !important;
-  border: 1px solid rgba(0,0,0,.15) !important;
-  color: #6b7280 !important;
-  padding: 3px 10px !important;
-  border-radius: 20px !important;
-  font-size: 11px !important;
-  cursor: pointer;
-  margin-left: 6px !important;
-  transition: all .2s;
-}
+
 .refresh-btn:hover { border-color: #2563eb !important; color: #2563eb !important; }
 
 /* Delete button */
@@ -494,7 +481,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Токио 5 ночей</span>
   </div>
   <div class="updated" id="updated-line">Обновлено: 09.07.2026 в 12:36</div>
-  <button class="refresh-btn" onclick="(()=>{const u=new URL(location.href);u.searchParams.set('_r',Date.now());location.href=u.toString()})()">🔄 Обновить</button>
+  
 </div>
 
 <div class="cities">
