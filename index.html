@@ -480,9 +480,7 @@ main, article, section { background: transparent !important; }
     <span class="badge">Хиросима + Миядзима 2 ночи</span>
     <span class="badge">Токио 5 ночей</span>
   </div>
-  <div class="updated" id="updated-line">Обновлено: 09.07.2026 в 13:11</div>
-  
-</div>
+  </div>
 
 <div class="cities">
 
@@ -1206,10 +1204,10 @@ function _allStopItems(card){
 }
 
 /* ── Optimistic actions ── */
-window.addStopToDay=function(date,placeId){
+window.addStopToDay=function(date,placeId,timeId){
   var inp=document.getElementById(placeId);
   var name=inp?inp.value.trim():'';
-  var t='';
+  var t=(document.getElementById(timeId)||{}).value||'';
   if(!name){if(inp)inp.focus();return;}
   var card=_cardOf(date);
   var newEl=_makeStopEl(date,name,t);
@@ -1351,13 +1349,14 @@ function enhanceUI(){
     panel.className='struct-edit-panel';
     panel.innerHTML=
       '<div class="struct-add-form">'+
-        '        '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
-        '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\')">+ Добавить</button>'+
+        '        '<input type="time" class="struct-time-in" id="stime-'+suf+'" value="10:00">'+
+        '<input type="text" class="struct-place-in" id="splace-'+suf+'" placeholder="Название места...">'+
+        '<button class="struct-add-btn" onclick="addStopToDay(\''+date+'\',\'splace-'+suf+'\',\'stime-'+suf+'\')">+ Добавить</button>'+
       '</div>'+
       '<button class="struct-clear-btn" onclick="clearDayStops(\''+date+'\')">🗑 Очистить день</button>';
     panel.addEventListener('keydown',function(e){
       if(e.key==='Enter'&&e.target.classList.contains('struct-place-in'))
-        addStopToDay(date,'splace-'+suf);
+        addStopToDay(date,'splace-'+suf,'stime-'+suf);
     });
     card.appendChild(panel);
   });
